@@ -81,6 +81,7 @@ if flagInitDay:
   createDir(fmt"./src/{year}/{day}")
   copyFile("./src/part-template.nim", fmt"./src/{year}/{day}/1.nim")
   copyFile("./src/part-template.nim", fmt"./src/{year}/{day}/2.nim")
+  writeFile(fmt"./src/{year}/{day}/test.txt", "")
 
 if flagTest:
   compileWithRunner("test-template.nim")
