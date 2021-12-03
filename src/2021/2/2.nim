@@ -68,7 +68,7 @@ proc logic*(input: string): int =
     guiUpdateElement(proc (): JsonNode =
       %* {
         "id": "answer",
-        "text": fmt"Answer = {position * depth}"
+        "text": fmt"Interim answer = {position * depth}"
       }
     )
 

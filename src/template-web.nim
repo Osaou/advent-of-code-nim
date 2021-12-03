@@ -11,7 +11,6 @@ import logic
 
 proc processUiUpdates() =
   if updates.len <= 0:
-    echo "empty stack"
     return
 
   let
@@ -22,8 +21,7 @@ proc processUiUpdates() =
   # set image source?
   processSingleUiUpdate(element, json)
 
-  # log to console and schedule next update with slight delay
-  echo json |> pretty |> cstring
+  # schedule next update with slight delay
   discard setTimeout(processUiUpdates, 5)
 
 
@@ -34,4 +32,4 @@ proc main(jsInput: cstring): int {.exportc.} =
     answer = logic(input)
 
   processUiUpdates()
-  echo answer
+  echo fmt"Final answer: {answer}"

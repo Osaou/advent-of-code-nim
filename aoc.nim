@@ -79,10 +79,12 @@ proc compileWithRunner(runnerFile: string, opts: string, runCommand: (binaryPath
   for variant in walkFiles(fmt"./src/{year}/{day}/{part}*.nim"):
     let
       (_, fileName, _) = splitFile(variant)
-      outFile = fmt"./build/{year}/{day}/{fileName}"
+      outDir = fmt"./build/{year}/{day}"
+      outFile = outDir / fileName
 
     # prepare source files
     createDir(fmt"./tmp")
+    createDir(outDir)
     copyFile("./src/utils.nim", "./tmp/utils.nim")
     copyFile("./src/tools-noop.nim", "./tmp/tools.nim")
     copyFile(fmt"./src/{runnerFile}", "./tmp/runner.nim")
@@ -102,20 +104,22 @@ proc compileForWeb(dataFile: string, runCommand: (binaryPath: string) -> void) =
   for variant in walkFiles(fmt"./src/{year}/{day}/{part}*.nim"):
     let
       (_, fileName, _) = splitFile(variant)
-      outFile = fmt"./build/{year}/{day}/{fileName}"
+      outDir = fmt"./build/{year}/{day}"
+      outFile = outDir / fileName
       outHtml = fmt"{outFile}.html"
 
     # prepare source files
     createDir(fmt"./tmp")
+    createDir(outDir)
     copyFile("./src/utils.nim", "./tmp/utils.nim")
     copyFile("./src/tools-web.nim", "./tmp/tools.nim")
-    copyFile("./src/web-template.nim", "./tmp/runner.nim")
+    copyFile("./src/template-web.nim", "./tmp/runner.nim")
     copyFile(variant, "./tmp/logic.nim")
 
     # prepare runner file with input data
     let
       dataInput = readFile(dataFile)
-      runnerContent = readFile("./src/web-template.html")
+      runnerContent = readFile("./src/template-web.html")
         .replace("{RUN_SCRIPT}", fmt"{fileName}.js")
         .replace("{DATA_INPUT}", dataInput)
     writeFile(outHtml, runnerContent)
@@ -145,23 +149,24 @@ if flagSendAnswer:
 if flagInitDay:
   printConfig()
   createDir(fmt"./src/{year}/{day}")
-  copyFile("./src/part-template.nim", fmt"./src/{year}/{day}/1.nim")
-  copyFile("./src/part-template.nim", fmt"./src/{year}/{day}/2.nim")
+  copyFile("./src/template-solution.nim", fmt"./src/{year}/{day}/1.nim")
+  copyFile("./src/template-solution.nim", fmt"./src/{year}/{day}/2.nim")
   writeFile(fmt"./src/{year}/{day}/test.txt", "")
+  writeFile(fmt"./src/{year}/{day}/input.txt", "")
 
 if flagTest:
-  compileWithRunner("test-template.nim", " --verbosity:1", proc (binary: string) =
+  compileWithRunner("runner-test.nim", " --verbosity:1", proc (binary: string) =
     discard execShellCmd(fmt"{binary} test ./src/{year}/{day}/test.txt")
   )
 
 if flagTestAll:
-  compileWithRunner("test-template.nim", proc (binary: string) =
+  compileWithRunner("runner-test.nim", proc (binary: string) =
     discard execShellCmd(fmt"{binary} test ./src/{year}/{day}/test.txt")
     discard execShellCmd(fmt"{binary} input ./src/{year}/{day}/input.txt")
   )
 
 if flagRun:
-  compileWithRunner("runner-template.nim", proc (binary: string) =
+  compileWithRunner("runner-main.nim", proc (binary: string) =
     discard execShellCmd(fmt"{binary} ./src/{year}/{day}/input.txt")
   )
 
@@ -171,11 +176,11 @@ if flagGui:
     discard execShellCmd(fmt"wslview {binary}")
   )
 
-  #compileWithRunner("gl-template.nim", proc (binary: string) =
-  #  discard execShellCmd(fmt"{binary} ./src/{year}/{day}/test.txt")
+  #compileWithRunner("runner-opengl.nim", proc (binary: string) =
+  #  discard execShellCmd(fmt"{binary} ./src/{year}/{day}/{dataFile}")
   #)
 
 if flagPerfTest:
-  compileWithRunner("runner-template.nim", "-d:danger", proc (binary: string) =
+  compileWithRunner("runner-main.nim", "-d:danger", proc (binary: string) =
     discard execShellCmd(fmt"hyperfine --warmup 50 '{binary} ./src/{year}/{day}/input.txt'")
   )
