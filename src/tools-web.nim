@@ -10,6 +10,7 @@ proc processSingleUiUpdate*(element: Element, json: JsonNode) =
     text = json{"text"}
     imgSrc = json{"image"}
     size = json{"size"}
+    bg = json{"bg"}
     position = json{"position"}
     rotation = json{"rotation"}
 
@@ -23,6 +24,10 @@ proc processSingleUiUpdate*(element: Element, json: JsonNode) =
   # set image source?
   if imgSrc != nil:
     element.setAttribute("src", imgSrc.getStr |> cstring)
+
+  # set bg color?
+  if bg != nil:
+    element.style.backgroundColor = bg.getStr |> cstring
 
   # set size of element?
   if size != nil:
@@ -51,6 +56,7 @@ proc processSingleUiUpdate*(element: Element, json: JsonNode) =
 var
   container* = document.getElementById("container")
   updates* = Deque[JsonNode]()
+  animationFrequency* = 5
 
 proc guiAddElement*(lazy: () -> JsonNode) =
   let

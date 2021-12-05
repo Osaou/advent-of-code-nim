@@ -17,6 +17,7 @@ const
 
 # logic
 proc logic*(input: string): int =
+  animationFrequency = 5
   guiAddElement(proc (): JsonNode =
     %* {
       "id": "submarine",

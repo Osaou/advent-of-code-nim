@@ -76,6 +76,13 @@ proc printConfig() =
 let baseCompileOpts = "--warning:UnusedImport:off --verbosity:0"
 
 proc compileWithRunner(runnerFile: string, opts: string, runCommand: (binaryPath: string) -> void) =
+  # start by copying all nim files from selected day's folder
+  for variant in walkFiles(fmt"./src/{year}/{day}/*.nim"):
+    let (_, fileName, _) = splitFile(variant)
+    createDir("./tmp")
+    copyFile(variant, fmt"./tmp/{fileName}.nim")
+
+  # now iterate over all solutions for selected part and compile + run
   for variant in walkFiles(fmt"./src/{year}/{day}/{part}*.nim"):
     let
       (_, fileName, _) = splitFile(variant)
@@ -83,7 +90,6 @@ proc compileWithRunner(runnerFile: string, opts: string, runCommand: (binaryPath
       outFile = outDir / fileName
 
     # prepare source files
-    createDir(fmt"./tmp")
     createDir(outDir)
     copyFile("./src/utils.nim", "./tmp/utils.nim")
     copyFile("./src/tools-noop.nim", "./tmp/tools.nim")
@@ -102,6 +108,13 @@ proc compileWithRunner(runnerFile: string, runCommand: (binaryPath: string) -> v
   compileWithRunner(runnerFile, "", runCommand)
 
 proc compileForWeb(dataFile: string, runCommand: (binaryPath: string) -> void) =
+  # start by copying all nim files from selected day's folder
+  for variant in walkFiles(fmt"./src/{year}/{day}/*.nim"):
+    let (_, fileName, _) = splitFile(variant)
+    createDir("./tmp")
+    copyFile(variant, fmt"./tmp/{fileName}.nim")
+
+  # now iterate over all solutions for selected part and compile + run
   for variant in walkFiles(fmt"./src/{year}/{day}/{part}*.nim"):
     let
       (_, fileName, _) = splitFile(variant)
@@ -110,7 +123,6 @@ proc compileForWeb(dataFile: string, runCommand: (binaryPath: string) -> void) =
       outHtml = fmt"{outFile}.html"
 
     # prepare source files
-    createDir(fmt"./tmp")
     createDir(outDir)
     copyFile("./src/utils.nim", "./tmp/utils.nim")
     copyFile("./src/tools-web.nim", "./tmp/tools.nim")

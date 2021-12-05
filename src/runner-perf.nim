@@ -11,8 +11,8 @@ import logic
 
 #const WARMUP_RUNS_COUNT: int64 = 50
 #const PERF_TEST_RUNS_COUNT: int64 = 250
-const WARMUP_RUNS_COUNT = 50
-const PERF_TEST_RUNS_COUNT = 250
+const WARMUP_RUNS_COUNT = 250
+const PERF_TEST_RUNS_COUNT = 1000
 
 type
   Reading = tuple
@@ -41,27 +41,33 @@ for i in 1 .. WARMUP_RUNS_COUNT:
     reading = (start: t0, stop: t1)
   readings &= reading
 
-readings = newSeq[Reading](PERF_TEST_RUNS_COUNT)
+#readings = newSeq[Reading](PERF_TEST_RUNS_COUNT)
+
+let t0 = cpuTime()
+asm """mfence"""
 
 for i in 1 .. PERF_TEST_RUNS_COUNT:
-  # adding t0 to logic and answer to t1 is an attempt to force cpu not to reorder these statements
-  let
-    #t0 = getCpuTicksStart()
-    #i0 = int(float64(t0) * 0.000000001)
-    t0 = cpuTime()
+  ## adding t0 to logic and answer to t1 is an attempt to force cpu not to reorder these statements
+  #let
+  #  #t0 = getCpuTicksStart()
+  #  #i0 = int(float64(t0) * 0.000000001)
+  #  t0 = cpuTime()
 
   #{.emit: """asm volatile ("" : : : "memory");""".}
   #asm """ "mfence" : : : "memory" """
-  asm """mfence"""
+  #asm """mfence"""
   discard logic(input)
-  asm """mfence"""
+  #asm """mfence"""
 
-  let
-    #t1 = getCpuTicksEnd()
-    #reading = (start: t0, stop: t1)
-    t1 = cpuTime()
-    reading = (start: t0, stop: t1)
-  readings &= reading
+  #let
+  #  #t1 = getCpuTicksEnd()
+  #  #reading = (start: t0, stop: t1)
+  #  t1 = cpuTime()
+  #  reading = (start: t0, stop: t1)
+  #readings &= reading
+
+asm """mfence"""
+let t1 = cpuTime()
 
 #let
 #  measurements = readings.mapIt(it.stop - it.start)
@@ -69,12 +75,15 @@ for i in 1 .. PERF_TEST_RUNS_COUNT:
 #  avg = total div PERF_TEST_RUNS_COUNT
 #  min = measurements.foldl(a < b ? a ! b, high(int64))
 #  max = measurements.foldl(a > b ? a ! b, low(int64))
+#let
+#  measurements = readings.mapIt(it.stop - it.start)
+#  total = measurements.foldl(a + b, 0.0)
+#  avg = total / float(PERF_TEST_RUNS_COUNT)
+#  min = measurements.foldl(a < b ? a ! b, high(float))
+#  max = measurements.foldl(a > b ? a ! b, low(float))
 let
-  measurements = readings.mapIt(it.stop - it.start)
-  total = measurements.foldl(a + b, 0.0)
+  total = t1 - t0
   avg = total / float(PERF_TEST_RUNS_COUNT)
-  min = measurements.foldl(a < b ? a ! b, high(float))
-  max = measurements.foldl(a > b ? a ! b, low(float))
 
 const
   NANO_CUTOFF  = 0.00001
@@ -88,4 +97,4 @@ func readableTime(sec: float): string =
   else:                    fmt"{sec} sec"
 
 echo fmt"Time  (mean):         {readableTime(avg)}         {PERF_TEST_RUNS_COUNT} runs, {WARMUP_RUNS_COUNT} warmup"
-echo fmt"Range (min … max):    {readableTime(min)} … {readableTime(max)}"
+#echo fmt"Range (min … max):    {readableTime(min)} … {readableTime(max)}"

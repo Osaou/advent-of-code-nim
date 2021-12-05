@@ -22,7 +22,7 @@ proc processUiUpdates() =
   processSingleUiUpdate(element, json)
 
   # schedule next update with slight delay
-  discard setTimeout(processUiUpdates, 5)
+  discard setTimeout(processUiUpdates, animationFrequency)
 
 
 
