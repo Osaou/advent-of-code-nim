@@ -9,3 +9,7 @@ insert_final_newline = true
 charset = utf-8
 indent_style = space
 indent_size = 2
+
+# data files for advent of code generally don't benefit from final newlines
+[*.txt]
+insert_final_newline = false

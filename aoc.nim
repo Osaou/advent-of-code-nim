@@ -87,6 +87,7 @@ proc compileWithRunner(runnerFile: string, opts: string, runCommand: (binaryPath
     createDir(outDir)
     copyFile("./src/utils.nim", "./tmp/utils.nim")
     copyFile("./src/tools-noop.nim", "./tmp/tools.nim")
+    copyFile("./src/cputicks.nim", "./tmp/cputicks.nim")
     copyFile(fmt"./src/{runnerFile}", "./tmp/runner.nim")
     copyFile(variant, "./tmp/logic.nim")
 
@@ -167,7 +168,8 @@ if flagTestAll:
 
 if flagRun:
   compileWithRunner("runner-main.nim", proc (binary: string) =
-    discard execShellCmd(fmt"{binary} ./src/{year}/{day}/input.txt")
+    for input in walkFiles(fmt"./src/{year}/{day}/input*.txt"):
+      discard execShellCmd(fmt"{binary} {input}")
   )
 
 if flagGui:
@@ -181,6 +183,10 @@ if flagGui:
   #)
 
 if flagPerfTest:
-  compileWithRunner("runner-main.nim", "-d:danger", proc (binary: string) =
-    discard execShellCmd(fmt"hyperfine --warmup 50 '{binary} ./src/{year}/{day}/input.txt'")
+  # TODO: perhaps rewrite performance testing so that loading input data from disk is not part of the test
+  #compileWithRunner("runner-main.nim", "-d:danger", proc (binary: string) =
+  #  discard execShellCmd(fmt"hyperfine --warmup 50 '{binary} ./src/{year}/{day}/input.txt'")
+  #)
+  compileWithRunner("runner-perf.nim", "-d:danger --benchmarkVM:on", proc (binary: string) =
+    discard execShellCmd(fmt"{binary} ./src/{year}/{day}/input.txt")
   )

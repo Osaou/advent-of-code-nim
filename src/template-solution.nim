@@ -8,8 +8,8 @@ import std/sugar
 
 # tests
 const
-  expectedTestResult* = 1
-  expectedRunResult* = 2
+  expectedTestResult* = 0
+  expectedRunResult* = 0
 
 
 
