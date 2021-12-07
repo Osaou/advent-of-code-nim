@@ -179,7 +179,7 @@ if flagTestAll:
   )
 
 if flagRun:
-  compileWithRunner("runner-main.nim", proc (binary: string) =
+  compileWithRunner("runner-main.nim", "-d:danger", proc (binary: string) =
     for input in walkFiles(fmt"./src/{year}/{day}/input*.txt"):
       discard execShellCmd(fmt"{binary} {input}")
   )
@@ -199,6 +199,6 @@ if flagPerfTest:
   #compileWithRunner("runner-main.nim", "-d:danger", proc (binary: string) =
   #  discard execShellCmd(fmt"hyperfine --warmup 50 '{binary} ./src/{year}/{day}/input.txt'")
   #)
-  compileWithRunner("runner-perf.nim", "-d:danger --benchmarkVM:on", proc (binary: string) =
+  compileWithRunner("runner-perf.nim", "-d:danger --benchmarkVM:on --gc:orc", proc (binary: string) =
     discard execShellCmd(fmt"{binary} ./src/{year}/{day}/input.txt")
   )
