@@ -36,6 +36,8 @@ proc processSingleUiUpdate*(element: Element, json: JsonNode) =
       height = size["height"].getInt
     element.style.width = fmt"{width}px" |> cstring
     element.style.height = fmt"{height}px" |> cstring
+    element.style.lineHeight = fmt"{height}px" |> cstring
+    element.style.textAlign = "center" |> cstring
 
   # set position of element?
   if position != nil:
