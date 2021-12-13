@@ -4,7 +4,11 @@ import std/times
 import std/strutils
 import std/strformat
 import std/sugar
+import std/options
 import elvis
+import fusion/matching
+
+{.experimental: "caseStmtMacros".}
 
 
 
@@ -15,6 +19,7 @@ var
   year: int
   day: int
   part = 1
+  inputFile = none(string)
 
 # if it's advent of code right now use the current year and day
 if month == Month.mDec and now.monthday <= 25:
@@ -47,6 +52,7 @@ while true:
           of "1": part = 1
           of "2": part = 2
           else: quit 1
+        of "i", "input": inputFile = some(opts.val)
         else: quit 1
     of cmdArgument:
       case opts.key
@@ -54,7 +60,7 @@ while true:
         of "c", "printconf": flagPrintConfig = true
         of "f", "fetch": flagFetchInput = true
         of "s", "send": flagSendAnswer = true
-        of "i", "initday": flagInitDay = true
+        of "initday": flagInitDay = true
         of "t", "test": flagTest = true
         of "test:all": flagTestAll = true
         of "test:gui":
@@ -169,7 +175,11 @@ if flagInitDay:
 
 if flagTest:
   compileWithRunner("runner-test.nim", " --verbosity:1", proc (binary: string) =
-    discard execShellCmd(fmt"{binary} test ./src/{year}/{day}/test.txt")
+    var input: string
+    case inputFile:
+      of None(): input = "test.txt"
+      of Some(@fileName): input = fileName
+    discard execShellCmd(fmt"{binary} test ./src/{year}/{day}/{input}")
   )
 
 if flagTestAll:

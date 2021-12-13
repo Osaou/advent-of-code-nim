@@ -1,8 +1,9 @@
 # imports
-import std/strformat
-import std/strutils
-import std/sequtils
-import std/sugar
+import std/[strformat, strutils, sequtils, sugar, tables, sets, math]
+import fusion/matching
+import utils
+
+{.experimental: "caseStmtMacros".}
 
 
 
@@ -13,5 +14,5 @@ const
 
 
 
-# logic
+# main
 proc logic*(input: string): int =
