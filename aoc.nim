@@ -209,6 +209,6 @@ if flagPerfTest:
   #compileWithRunner("runner-main.nim", "-d:danger", proc (binary: string) =
   #  discard execShellCmd(fmt"hyperfine --warmup 50 '{binary} ./src/{year}/{day}/input.txt'")
   #)
-  compileWithRunner("runner-perf.nim", "-d:danger --benchmarkVM:on --gc:orc", proc (binary: string) =
+  compileWithRunner("runner-perf.nim", "-d:danger", proc (binary: string) =
     discard execShellCmd(fmt"{binary} ./src/{year}/{day}/input.txt")
   )

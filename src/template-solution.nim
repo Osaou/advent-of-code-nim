@@ -15,4 +15,4 @@ const
 
 
 # main
-proc logic*(input: string): int =
+proc logic*(input: string): int64 =
