@@ -1,3 +1,4 @@
+import strutils
 import macros
 
 
@@ -61,3 +62,22 @@ proc flatten*[T](s: seq[T]): seq[T] =
       result &= flatten(x)
     else:
       result &= x
+
+
+
+func isInt*(c: char): bool =
+  c.int >= 48 and
+  c.int <= 57
+
+func charToInt*(c: char): int =
+  c.int - 48
+
+
+
+func parseGrid*[T: SomeInteger](input: string): seq[seq[T]] =
+  for line in input.splitLines():
+    var row = newSeq[T]()
+    for c in line:
+      row &= c.charToInt()
+
+    result &= row
