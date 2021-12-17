@@ -4,11 +4,6 @@ import std/times
 import std/strutils
 import std/strformat
 import std/sugar
-import std/options
-import elvis
-import fusion/matching
-
-{.experimental: "caseStmtMacros".}
 
 
 
@@ -19,7 +14,7 @@ var
   year: int
   day: int
   part = 1
-  inputFile = none(string)
+  inputFile = "input.txt"
 
 # if it's advent of code right now use the current year and day
 if month == Month.mDec and now.monthday <= 25:
@@ -35,7 +30,6 @@ var
   flagTest = false
   flagRun = false
   flagGui = false
-  flagGuiTestFile = false
   flagPerfTest = false
   opts = initOptParser()
 while true:
@@ -51,7 +45,7 @@ while true:
           of "1": part = 1
           of "2": part = 2
           else: quit 1
-        of "f", "inputfile": inputFile = some(opts.val)
+        of "f", "inputfile": inputFile = opts.val
         else: quit 1
     of cmdArgument:
       case opts.key
@@ -63,9 +57,7 @@ while true:
         of "test": flagTest = true
         of "run": flagRun = true
         of "perf": flagPerfTest = true
-        of "gui":
-          flagGui = true
-          flagGuiTestFile = false
+        of "gui": flagGui = true
         else: quit 1
 
 
@@ -196,8 +188,7 @@ if flagRun:
   )
 
 if flagGui:
-  let dataFile = flagGuiTestFile ? "test.txt" ! "input.txt"
-  compileForWeb(fmt"./src/{year}/{day}/{dataFile}", proc (binary: string) =
+  compileForWeb(fmt"./src/{year}/{day}/{inputFile}", proc (binary: string) =
     discard execShellCmd(fmt"wslview {binary}")
   )
 
@@ -207,5 +198,5 @@ if flagGui:
 
 if flagPerfTest:
   compileWithRunner("runner-perf.nim", "-d:danger", proc (binary: string) =
-    discard execShellCmd(fmt"{binary} ./src/{year}/{day}/input.txt")
+    discard execShellCmd(fmt"{binary} ./src/{year}/{day}/{inputFile}")
   )

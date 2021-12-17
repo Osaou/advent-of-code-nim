@@ -38,13 +38,16 @@ Tip: this command supports multiple solutions just like the `test` command does.
 Additionally, you can have multiple input data files that this command will use. The `run` command will find all input data files matching the glob `./src/{year}/{day}/input*.txt`.
 
 ### `aoc perf ...`
-Compile and then run performance tests for a given part, always using the respective day's `input.txt` file as input.
+Compile and then run rudimentary performance tests for a given part, defaulting to using the respective day's `input.txt` file as input.
 Tip: this command supports multiple solutions just like the `test` command does.
 
 ### `aoc gui ...`
-Compile a given part for web (using Nim's JavaScript target), and then running it using your system default web browser.
+Compile a given part for web (using Nim's JavaScript target), and then running it using your system default web browser, defaulting to using the respective day's `input.txt` file as input.
 It will only use solution files matching the glob `./src/{year}/{day}/gui_{part}*.nim`.
 Tip: you can put additional resources in the `./resources` directory, which will all be available to your solution in the "current directory" when run.
+
+### `aoc --inputfile:path/to/file.txt ...` or `aoc -f:path/to/file.txt ...`
+Sets the input data file the CLI will use. Only works for the `perf` and `gui` commands.
 
 ### `aoc clean`
 Clean up the various temp directories (`./tmp`, `./build` etc) created by running other commands.
