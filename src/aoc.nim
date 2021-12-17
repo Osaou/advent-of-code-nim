@@ -33,7 +33,6 @@ var
   flagSendAnswer = false
   flagInitDay = false
   flagTest = false
-  flagTestAll = false
   flagRun = false
   flagGui = false
   flagGuiTestFile = false
@@ -62,7 +61,6 @@ while true:
         of "send": flagSendAnswer = true
         of "initday": flagInitDay = true
         of "test": flagTest = true
-        of "test:all": flagTestAll = true
         of "run": flagRun = true
         of "perf": flagPerfTest = true
         of "gui":
@@ -115,9 +113,6 @@ proc compileWithRunner(runnerFile: string, opts: string, runCommand: (binaryPath
 
     # run
     runCommand(buildFile)
-
-proc compileWithRunner(runnerFile: string, runCommand: (binaryPath: string) -> void) =
-  compileWithRunner(runnerFile, "", runCommand)
 
 proc compileForWeb(dataFile: string, runCommand: (binaryPath: string) -> void) =
   let
@@ -194,12 +189,6 @@ if flagTest:
     discard execShellCmd(fmt"cd {dir} && ./{bin}")
   )
 
-if flagTestAll:
-  compileWithRunner("runner-test.nim", proc (binary: string) =
-    discard execShellCmd(fmt"{binary} test ./src/{year}/{day}/test.txt")
-    discard execShellCmd(fmt"{binary} input ./src/{year}/{day}/input.txt")
-  )
-
 if flagRun:
   compileWithRunner("runner-main.nim", "-d:danger", proc (binary: string) =
     for input in walkFiles(fmt"./src/{year}/{day}/input*.txt"):
@@ -217,10 +206,6 @@ if flagGui:
   #)
 
 if flagPerfTest:
-  # TODO: perhaps rewrite performance testing so that loading input data from disk is not part of the test
-  #compileWithRunner("runner-main.nim", "-d:danger", proc (binary: string) =
-  #  discard execShellCmd(fmt"hyperfine --warmup 50 '{binary} ./src/{year}/{day}/input.txt'")
-  #)
   compileWithRunner("runner-perf.nim", "-d:danger", proc (binary: string) =
     discard execShellCmd(fmt"{binary} ./src/{year}/{day}/input.txt")
   )
