@@ -1,17 +1,7 @@
-# imports
-import std/strformat
-import std/strutils
-import std/sequtils
-import std/sugar
+import std/[strformat, strutils, sequtils, sugar, tables, sets, math]
+import fusion/matching
 import utils
 import elvis
-
-
-
-# tests
-const
-  expectedTestResult* = 1924
-  expectedRunResult* = 16830
 
 
 
@@ -29,8 +19,7 @@ func parseBoardRow(row: string): seq[BoardPos]
 
 
 
-# logic
-func logic*(input: string): int =
+func solve*(input: string): int =
   var
     lines = input.splitLines
     gameData = lines[0].split(",").map(parseInt)
@@ -120,3 +109,9 @@ func checkForBingo(nrs: seq[BoardPos]): bool =
   nrs
     .filterIt(it.marked == false)
     .len == 0
+
+
+
+tests:
+  solve(readFile("test.txt")) == 1924
+  solve(readFile("input.txt")) == 16830

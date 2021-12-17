@@ -1,28 +1,10 @@
-# imports
-import std/strformat
-import std/strutils
-import std/sequtils
-import std/sugar
-import utils
+import std/[strformat, strutils, sequtils, sugar, math]
 import fusion/matching
-import math
-
-{.experimental: "caseStmtMacros".}
+import utils
 
 
 
-# tests
-const
-  expectedTestResult* = 15
-  expectedRunResult* = 522
-
-
-
-func charToInt(c: char): int =
-  c.int - 48
-
-# logic
-func logic*(input: string): int =
+func solve*(input: string): int =
   let
     values = input
       .splitLines()
@@ -67,3 +49,9 @@ func logic*(input: string): int =
           height + 1
 
   lowPoints.sum()
+
+
+
+tests:
+  solve(readFile("test.txt")) == 15
+  solve(readFile("input.txt")) == 522

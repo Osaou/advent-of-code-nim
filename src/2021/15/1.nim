@@ -1,4 +1,3 @@
-# imports
 import std/[strformat, strutils, sequtils, sugar, tables, sets, math]
 import fusion/matching
 import utils
@@ -7,15 +6,7 @@ from astar import path
 
 
 
-# tests
-const
-  expectedTestResult* = 40
-  expectedRunResult* = 824
-
-
-
-# main
-proc logic*(input: string): int64 =
+proc solve*(input: string): int64 =
   let
     caves: Grid = parseGrid[int](input)
     start: Point = (x: 0, y: 0)
@@ -26,3 +17,9 @@ proc logic*(input: string): int64 =
     .toSeq()
     .mapIt(caves[it.y][it.x])
     .sum() - caves[start.y][start.x]
+
+
+
+tests:
+  solve(readFile("test.txt")) == 40
+  solve(readFile("input.txt")) == 824

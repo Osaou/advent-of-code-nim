@@ -1,16 +1,7 @@
-# imports
-import std/strformat
-import std/strutils
-import std/sequtils
-import std/sugar
+import std/[strformat, strutils, sequtils, sugar, tables, sets, math]
+import fusion/matching
+import utils
 import data
-
-
-
-# tests
-const
-  expectedTestResult* = 5
-  expectedRunResult* = 5167
 
 
 
@@ -35,8 +26,7 @@ iterator pairs(line: Line): Point =
 
 
 
-# logic
-proc logic*(input: string): int =
+proc solve*(input: string): int =
   let
     (lines, cols, rows) = parseData(input)
     filteredLines       = lines.filterIt(it.x1 == it.x2 or it.y1 == it.y2)
@@ -53,3 +43,9 @@ proc logic*(input: string): int =
         intersections += 1
 
   intersections
+
+
+
+tests:
+  solve(readFile("test.txt")) == 5
+  solve(readFile("input.txt")) == 5167

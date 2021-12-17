@@ -1,5 +1,4 @@
-import strutils
-import macros
+import std/[strutils, strformat, macros]
 
 
 
@@ -81,3 +80,31 @@ func parseGrid*[T: SomeInteger](input: string): seq[seq[T]] =
       row &= c.charToInt()
 
     result &= row
+
+
+
+macro debug*(args: varargs[untyped]): untyped =
+  result = nnkStmtList.newTree()
+  for n in args:
+    result.add newCall("write", newIdentNode("stdout"), newLit(n.repr))
+    result.add newCall("write", newIdentNode("stdout"), newLit(": "))
+    result.add newCall("writeLine", newIdentNode("stdout"), n)
+
+
+
+macro tests*(body: untyped): untyped =
+  var procBody = newStmtList()
+  for n in body:
+    procBody.add newCall("write", newIdentNode("stdout"), newLit(fmt"TEST: "))
+    procBody.add newCall("write", newIdentNode("stdout"), newLit(n.repr))
+    procBody.add newIfStmt(
+      (n, newCall("writeLine", newIdentNode("stdout"), newLit(" ✅")))
+    ).add(newNimNode(nnkElse).add(
+      newCall("writeLine", newIdentNode("stdout"), newLit(" ⛔"))
+    ))
+
+  template procDecl(code): untyped =
+    proc tests*() =
+      code
+
+  result = getAst(procDecl(procBody))

@@ -1,20 +1,9 @@
-# imports
-import std/strformat
-import std/strutils
-import std/sequtils
-import std/sugar
+import std/[strformat, strutils, sequtils, sugar]
+import utils
 
 
 
-# tests
-const
-  expectedTestResult* = 150
-  expectedRunResult* = 1670340
-
-
-
-# logic
-proc logic*(input: string): int =
+proc solve*(input: string): int =
   let trajectory = input
     .splitLines
     .filterIt(it.strip() != "")
@@ -38,3 +27,9 @@ proc logic*(input: string): int =
   #echo fmt"Position: {position}, Depth: {depth}"
 
   position * depth
+
+
+
+tests:
+  solve(readFile("test.txt")) == 150
+  solve(readFile("input.txt")) == 1_670_340

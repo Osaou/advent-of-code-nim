@@ -1,23 +1,12 @@
-# imports
-import std/strformat
-import std/strutils
-import std/sequtils
-import std/sugar
-import std/algorithm
-import std/json
-import std/tables
+import std/[strformat, strutils, sequtils, sugar, algorithm, json, tables, math]
 import fusion/matching
-import math
-import utils
+#import utils
 import tools
 import data
 
 
 
-# tests
 const
-  expectedTestResult* = 1_134
-  expectedRunResult* = 916_688
   GUI_CAVE_SIZE = 40
   GUI_CAVE_MARGIN = 5
   GUI_CAVE_COLORS = @["#00a", "#22b", "#44b", "#66c", "#88d", "#aae", "#bbe", "#ccf", "#ddf", "#777"]
@@ -71,8 +60,7 @@ func addBasin(marked: var BasinMarker, size: int, id: int) =
 
 
 
-# logic
-proc logic*(input: string): int =
+proc solve*(input: string): int =
   let
     map = newHeightmap(input)
   var

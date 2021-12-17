@@ -1,18 +1,12 @@
-# imports
+{.experimental: "caseStmtMacros".}
 import std/[strformat, strutils, sequtils, sugar, tables, sets, math]
 import fusion/matching
 import utils
 
-{.experimental: "caseStmtMacros".}
+
+
+proc solve*(input: string): int =
 
 
 
-# tests
-const
-  expectedTestResult* = 0
-  expectedRunResult* = 0
-
-
-
-# main
-proc logic*(input: string): int64 =
+tests:

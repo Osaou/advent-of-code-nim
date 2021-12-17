@@ -1,8 +1,6 @@
 import std/[strformat, strutils, sequtils, sugar, tables, sets, math]
 import fusion/matching
 
-{.experimental: "caseStmtMacros".}
-
 
 
 type
@@ -33,11 +31,9 @@ proc connectRooms(cavern: var Cavern, n1, n2: string) =
   r1.connectedRooms.add(r2)
   r2.connectedRooms.add(r1)
 
-proc newCavern*(input: string): Cavern =
-  var
-    cavern = Cavern(rooms: initTable[string, CaveRoom]())
-    #start = CaveRoom(paths:newSeq(), isBigRoom:false, name:"start")
-    #end_ =  CaveRoom(paths:newSeq(), isBigRoom:false, name:"end")
+func newCavern*(input: string): Cavern =
+  var cavern = Cavern(rooms: initTable[string, CaveRoom]())
+
   for path in input.splitLines():
     [@r1, @r2] := path.split("-")
     cavern.connectRooms(r1, r2)

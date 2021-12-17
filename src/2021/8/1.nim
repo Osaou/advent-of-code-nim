@@ -1,21 +1,10 @@
-# imports
-import std/strformat
-import std/strutils
-import std/sequtils
-import std/sugar
-import math
+import std/[strformat, strutils, sequtils, sugar, tables, sets, math]
+import fusion/matching
+import utils
 
 
 
-# tests
-const
-  expectedTestResult* = 26
-  expectedRunResult* = 532
-
-
-
-# logic
-func logic*(input: string): int =
+func solve*(input: string): int =
   input
     .splitLines()
     .mapIt(it.split(" | ")[1])
@@ -28,3 +17,9 @@ func logic*(input: string): int =
       .len()
     )
     .sum()
+
+
+
+tests:
+  solve(readFile("test.txt")) == 26
+  solve(readFile("input.txt")) == 532

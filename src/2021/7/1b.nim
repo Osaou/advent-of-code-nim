@@ -1,22 +1,10 @@
-# imports
-import std/strformat
-import std/strutils
-import std/sequtils
-import std/sugar
+import std/[strformat, strutils, sequtils, sugar]
 import math
 import utils
 
 
 
-# tests
-const
-  expectedTestResult* = 37
-  expectedRunResult* = 344_735
-
-
-
-# logic
-func logic*(input: string): int =
+func solve*(input: string): int =
   let crabPositions = input
     .split(",")
     .map(parseInt)
@@ -27,3 +15,9 @@ func logic*(input: string): int =
       .foldl(a + abs(b - shift), 0)
     )
     .min()
+
+
+
+tests:
+  solve(readFile("test.txt")) == 37
+  solve(readFile("input.txt")) == 344_735

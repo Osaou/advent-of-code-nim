@@ -2,8 +2,6 @@ import std/[strformat, options]
 import fusion/matching
 import utils
 
-{.experimental: "caseStmtMacros".}
-
 
 
 type

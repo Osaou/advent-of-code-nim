@@ -5,7 +5,7 @@ import std/json
 import dom
 import utils
 import tools
-import logic
+import solution
 
 
 
@@ -26,10 +26,10 @@ proc processUiUpdates() =
 
 
 
-proc main(jsInput: cstring): int {.exportc.} =
+proc run(jsInput: cstring): int {.exportc.} =
   let
     input = $(jsInput)
-    answer = logic(input)
+    answer = solve(input)
 
   processUiUpdates()
   echo fmt"Final answer: {answer}"

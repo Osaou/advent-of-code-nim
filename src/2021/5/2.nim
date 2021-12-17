@@ -1,16 +1,7 @@
-# imports
-import std/strformat
-import std/strutils
-import std/sequtils
-import std/sugar
+import std/[strformat, strutils, sequtils, sugar, tables, sets, math]
+import fusion/matching
+import utils
 import data
-
-
-
-# tests
-const
-  expectedTestResult* = 12
-  expectedRunResult* = 17604
 
 
 
@@ -43,8 +34,7 @@ iterator pairs(line: Line): Point =
 
 
 
-# logic
-proc logic*(input: string): int =
+proc solve*(input: string): int =
   let (lines, cols, rows) = parseData(input)
   var seabed              = newSeqWith(rows+1, newSeq[int](cols+1))
 
@@ -59,3 +49,9 @@ proc logic*(input: string): int =
         intersections += 1
 
   intersections
+
+
+
+tests:
+  solve(readFile("test.txt")) == 12
+  solve(readFile("input.txt")) == 17604

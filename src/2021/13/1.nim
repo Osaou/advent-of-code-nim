@@ -1,22 +1,11 @@
-# imports
 import std/[strformat, strutils, sequtils, sugar, tables, sets, math]
 import fusion/matching
 import utils
 import matrix
 
-{.experimental: "caseStmtMacros".}
 
 
-
-# tests
-const
-  expectedTestResult* = 17
-  expectedRunResult* = 704
-
-
-
-# main
-proc logic*(input: string): int =
+func solve*(input: string): int =
   # start by splitting up the dots and folds info
   [@dotsInstructions, @foldsInstructions] := input
     .split("\n\n")
@@ -68,3 +57,9 @@ proc logic*(input: string): int =
     .clamp(1)
     .data
     .sum()
+
+
+
+tests:
+  solve(readFile("test.txt")) == 17
+  solve(readFile("input.txt")) == 704

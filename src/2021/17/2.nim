@@ -1,21 +1,11 @@
-# imports
 import std/[strformat, strutils, sequtils, sugar, tables, sets, math]
 import fusion/matching
 import utils
 import data
-{.experimental: "caseStmtMacros".}
 
 
 
-# tests
-const
-  expectedTestResult* = 112
-  expectedRunResult* = 1566
-
-
-
-# main
-proc logic*(input: string): int64 =
+func solve*(input: string): int64 =
   [@targetX, @targetY] := parseTargetArea(input)
   var successCount = 0
 
@@ -34,3 +24,9 @@ proc logic*(input: string): int64 =
         successCount += 1
 
   successCount
+
+
+
+tests:
+  solve(readFile("test.txt")) == 112
+  solve(readFile("input.txt")) == 1566

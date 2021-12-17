@@ -1,21 +1,11 @@
-# imports
 import std/[strformat, strutils, sequtils, sugar, tables, sets, math]
 import fusion/matching
 import utils
 import data
-{.experimental: "caseStmtMacros".}
 
 
 
-# tests
-const
-  expectedTestResult* = 45
-  expectedRunResult* = 2775
-
-
-
-# main
-proc logic*(input: string): int64 =
+func solve*(input: string): int64 =
   [@targetX, @targetY] := parseTargetArea(input)
   var maxY = 0
 
@@ -39,3 +29,9 @@ proc logic*(input: string): int64 =
         maxY = localMaxY
 
   maxY
+
+
+
+tests:
+  solve(readFile("test.txt")) == 45
+  solve(readFile("input.txt")) == 2775

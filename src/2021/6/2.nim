@@ -1,17 +1,6 @@
-# imports
-import std/strformat
-import std/strutils
-import std/sequtils
-import std/sugar
-import std/tables
-import std/math
-
-
-
-# tests
-const
-  expectedTestResult* = 26_984_457_539
-  expectedRunResult* = 1_721_148_811_504
+import std/[strformat, strutils, sequtils, sugar, tables, sets, math]
+import fusion/matching
+import utils
 
 
 
@@ -34,11 +23,16 @@ func predictGrowthRate(school: seq[int64], days: int): int64 =
 
 
 
-# logic
-proc logic*(input: string): int64 =
+proc solve*(input: string): int64 =
   var school = input
     .split(",")
     .map(parseInt)
     .mapIt(it.int64)
 
   predictGrowthRate(school, 256)
+
+
+
+tests:
+  solve(readFile("test.txt")) == 26_984_457_539
+  solve(readFile("input.txt")) == 1_721_148_811_504

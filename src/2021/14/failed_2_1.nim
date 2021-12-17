@@ -1,16 +1,6 @@
-# imports
 import std/[strformat, strutils, sequtils, sugar, tables, sets, math, options]
 import fusion/matching
 import utils
-
-{.experimental: "caseStmtMacros".}
-
-
-
-# tests
-const
-  expectedTestResult* = 2188189693529
-  expectedRunResult* = 0
 
 
 
@@ -40,8 +30,7 @@ func growPolymer(rules: Table[string, Option[string]], polymer: string): string 
 
 
 
-# main
-proc logic*(input: string): int =
+proc solve*(input: string): int =
   [@polymerTemplate, @insertionRules] := input.split("\n\n")
 
   var polymer = polymerTemplate

@@ -1,16 +1,6 @@
-# imports
-import std/strformat
-import std/strutils
-import std/sequtils
-import std/sugar
+import std/[strformat, strutils, sequtils, sugar]
 import elvis
-
-
-
-# tests
-const
-  expectedTestResult* = 5
-  expectedRunResult* = 1734
+import utils
 
 
 
@@ -32,8 +22,9 @@ proc assignMatrixValue(matrix: var seq[seq[int]], i: int, value: int) =
     matrix[i-1][i] = value
   matrix[i][i] = value
 
-# logic
-proc logic*(input: string): int =
+
+
+proc solve*(input: string): int =
   var measurements: seq[int] = input
     .split("\n")
     .filterIt(it.strip() != "")
@@ -58,3 +49,9 @@ proc logic*(input: string): int =
   return windows
     .foldl(b > a.prev ? (b, a.increases + 1) ! (b, a.increases), (prev: high(int), increases: 0))
     .increases
+
+
+
+tests:
+  solve(readFile("test.txt")) == 5
+  solve(readFile("input.txt")) == 1734

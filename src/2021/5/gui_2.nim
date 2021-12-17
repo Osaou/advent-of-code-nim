@@ -1,19 +1,8 @@
-# imports
-import std/strformat
-import std/strutils
-import std/sequtils
-import std/sugar
+import std/[strformat, strutils, sequtils, sugar, json]
 import data
 import elvis
-import std/json
 import tools
-
-
-
-# tests
-const
-  expectedTestResult* = 12
-  expectedRunResult* = 17604
+import utils
 
 
 
@@ -51,8 +40,9 @@ const
   GUI_POINT_MARGIN = 5
   GUI_LINE_COLORS = @["#7b7", "#b77", "#77b", "#7bb", "#b7b", "#bb7", "#b70", "#7b0", "#07b", "#0b7"]
 
-# logic
-proc logic*(input: string): int =
+
+
+proc solve*(input: string): int =
   let (lines, cols, rows) = parseData(input)
   var seabed              = newSeqWith(rows+1, newSeq[int](cols+1))
 

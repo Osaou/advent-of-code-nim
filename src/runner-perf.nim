@@ -5,12 +5,10 @@ import std/strformat
 import std/sequtils
 import cputicks
 import elvis
-import logic
+import solution
 
 
 
-#const WARMUP_RUNS_COUNT: int64 = 50
-#const PERF_TEST_RUNS_COUNT: int64 = 250
 const
   WARMUP_RUNS_COUNT = 100
   WARMUP_MAX_TIMEOUT_SEC = 5
@@ -19,8 +17,6 @@ const
 
 type
   Reading = tuple
-    #start: int64
-    #stop: int64
     start: float
     stop: float
 
@@ -36,13 +32,10 @@ var
   warmupRunCount = 0
 randomize()
 while warmupRunCount < WARMUP_RUNS_COUNT:
-  # adding t0 to logic and answer to t1 is an attempt to force cpu not to reorder these statements
   let
-    #t0 = int64(rand 100)
     w0 = float(rand 100)
-  discard logic(input)
+  discard solve(input)
   let
-    #t1 = int64(rand 100)
     w1 = float(rand 100)
     reading = (start: w0, stop: w1)
   readings &= reading
@@ -51,31 +44,12 @@ while warmupRunCount < WARMUP_RUNS_COUNT:
   if (cpuTime() - t0) > WARMUP_MAX_TIMEOUT_SEC:
     break
 
-#readings = newSeq[Reading](PERF_TEST_RUNS_COUNT)
-
 var perfRunCount = 0
 t0 = cpuTime()
 asm """mfence"""
 
 while perfRunCount < PERF_TEST_RUNS_COUNT:
-  ## adding t0 to logic and answer to t1 is an attempt to force cpu not to reorder these statements
-  #let
-  #  #t0 = getCpuTicksStart()
-  #  #i0 = int(float64(t0) * 0.000000001)
-  #  t0 = cpuTime()
-
-  #{.emit: """asm volatile ("" : : : "memory");""".}
-  #asm """ "mfence" : : : "memory" """
-  #asm """mfence"""
-  discard logic(input)
-  #asm """mfence"""
-
-  #let
-  #  #t1 = getCpuTicksEnd()
-  #  #reading = (start: t0, stop: t1)
-  #  t1 = cpuTime()
-  #  reading = (start: t0, stop: t1)
-  #readings &= reading
+  discard solve(input)
 
   perfRunCount += 1
   if (cpuTime() - t0) > PERF_TEST_MAX_TIMEOUT_SEC:
@@ -84,18 +58,6 @@ while perfRunCount < PERF_TEST_RUNS_COUNT:
 asm """mfence"""
 let t1 = cpuTime()
 
-#let
-#  measurements = readings.mapIt(it.stop - it.start)
-#  total = measurements.foldl(a + b, int64(0))
-#  avg = total div PERF_TEST_RUNS_COUNT
-#  min = measurements.foldl(a < b ? a ! b, high(int64))
-#  max = measurements.foldl(a > b ? a ! b, low(int64))
-#let
-#  measurements = readings.mapIt(it.stop - it.start)
-#  total = measurements.foldl(a + b, 0.0)
-#  avg = total / float(PERF_TEST_RUNS_COUNT)
-#  min = measurements.foldl(a < b ? a ! b, high(float))
-#  max = measurements.foldl(a > b ? a ! b, low(float))
 let
   total = t1 - t0
   avg = total / float(perfRunCount)

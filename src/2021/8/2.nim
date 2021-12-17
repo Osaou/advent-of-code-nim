@@ -1,20 +1,6 @@
-# imports
-import std/strformat
-import std/strutils
-import std/sequtils
-import std/sugar
-import math
+import std/[strformat, strutils, sequtils, sugar, tables, sets, math, algorithm]
 import fusion/matching
-import std/tables
 import utils
-import std/algorithm
-
-
-
-# tests
-const
-  expectedTestResult* = 61_229
-  expectedRunResult* = 1_011_284
 
 
 
@@ -91,10 +77,15 @@ func deduceOutputValue(line: string): int =
 
 
 
-# logic
-proc logic*(input: string): int =
-  #assert deduceOutputValue("acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf") == 5353
+proc solve*(input: string): int =
   input
     .splitLines()
     .map(deduceOutputValue)
     .sum()
+
+
+
+tests:
+  deduceOutputValue("acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf") == 5353
+  solve(readFile("test.txt")) == 61_229
+  solve(readFile("input.txt")) == 1_011_284

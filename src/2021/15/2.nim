@@ -1,16 +1,8 @@
-# imports
 import std/[strformat, strutils, sequtils, sugar, tables, sets, math]
 import fusion/matching
 import utils
 import pathfinding
 from astar import path
-
-
-
-# tests
-const
-  expectedTestResult* = 315
-  expectedRunResult* = 3063
 
 
 
@@ -32,8 +24,7 @@ func extend(grid: Grid, mul: int): Grid =
 
 
 
-# main
-proc logic*(input: string): int64 =
+proc solve*(input: string): int64 =
   let
     caves: Grid = parseGrid[int](input).extend(5)
     start: Point = (x: 0, y: 0)
@@ -44,3 +35,9 @@ proc logic*(input: string): int64 =
     .toSeq()
     .mapIt(caves[it.y][it.x])
     .sum() - caves[start.y][start.x]
+
+
+
+tests:
+  solve(readFile("test.txt")) == 315
+  solve(readFile("input.txt")) == 3063

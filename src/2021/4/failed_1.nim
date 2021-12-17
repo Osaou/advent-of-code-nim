@@ -1,16 +1,5 @@
-# imports
-import std/strformat
-import std/strutils
-import std/sequtils
-import std/sugar
+import std/[strformat, strutils, sequtils, sugar]
 import utils
-
-
-
-# tests
-const
-  expectedTestResult* = 1
-  expectedRunResult* = 2
 
 
 
@@ -25,8 +14,7 @@ func parseBoardRow(row: string): seq[int] =
     .filterIt(it.len > 0)
     .map(parseInt)
 
-# logic
-proc logic*(input: string): int =
+proc solve*(input: string): int =
   var
     lines = input.splitLines
     gameData = lines[0].split(",").map(parseInt)

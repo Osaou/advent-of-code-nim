@@ -1,18 +1,10 @@
-# imports
-import std/[strformat, strutils, sequtils, sugar, math]
+import std/[strformat, strutils, sequtils, math]
+import utils
 import parsing
 
 
 
-# tests
-const
-  expectedTestResult* = 26_397
-  expectedRunResult* = 411_471
-
-
-
-# logic
-proc logic*(input: string): int64 =
+func solve*(input: string): int64 =
   input
     .splitLines()
     .map(parseNavigationLine)
@@ -20,3 +12,9 @@ proc logic*(input: string): int64 =
     .filterIt(it.isCorrupted)
     .mapIt(it.errorScore)
     .sum()
+
+
+
+tests:
+  solve(readFile("test.txt")) == 26_397
+  solve(readFile("input.txt")) == 411_471

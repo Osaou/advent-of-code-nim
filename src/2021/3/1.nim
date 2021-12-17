@@ -1,17 +1,6 @@
-# imports
-import std/strformat
-import std/strutils
-import std/sequtils
-import std/sugar
+import std/[strformat, strutils, sequtils, sugar]
 import elvis
 import utils
-
-
-
-# tests
-const
-  expectedTestResult* = 198
-  expectedRunResult* = 2261546
 
 
 
@@ -28,8 +17,7 @@ const
 # 00010
 # 01010
 
-# logic
-proc logic*(input: string): int =
+func solve*(input: string): int =
   let
     powerConsumption = input
       # read in as seq[string] of all lines
@@ -59,3 +47,9 @@ proc logic*(input: string): int =
 
   # end result is gamma multiplied by epsilon
   gamma * epsilon
+
+
+
+tests:
+  solve(readFile("test.txt")) == 198
+  solve(readFile("input.txt")) == 2_261_546

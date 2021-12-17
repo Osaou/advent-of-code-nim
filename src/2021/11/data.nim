@@ -4,8 +4,6 @@ import std/sequtils
 import std/sugar
 import fusion/matching
 
-{.experimental: "caseStmtMacros".}
-
 
 
 const

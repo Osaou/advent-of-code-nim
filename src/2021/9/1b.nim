@@ -1,20 +1,11 @@
-# imports
-import std/sequtils
-import std/sugar
-import math
+import std/[strformat, strutils, sequtils, sugar, tables, sets, math]
+import fusion/matching
+import utils
 import data
 
 
 
-# tests
-const
-  expectedTestResult* = 15
-  expectedRunResult* = 522
-
-
-
-# logic
-func logic*(input: string): int =
+func solve*(input: string): int =
   let
     map = newHeightmap(input)
     lowPoints = collect(newSeq):
@@ -28,3 +19,9 @@ func logic*(input: string): int =
             height + 1
 
   lowPoints.sum()
+
+
+
+tests:
+  solve(readFile("test.txt")) == 15
+  solve(readFile("input.txt")) == 522

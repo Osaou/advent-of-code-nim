@@ -1,22 +1,11 @@
-# imports
 import std/[strformat, strutils, sequtils, sugar, tables, sets, math]
 import fusion/matching
+import utils
 import data
 
-{.experimental: "caseStmtMacros".}
 
 
-
-# tests
-const
-  expectedTestResult* = 19
-  expectedRunResult* = 3292
-
-
-
-# daily logic
-
-proc countPathsTo(current, destination: CaveRoom, visitedRooms: HashSet[string]): int =
+func countPathsTo(current, destination: CaveRoom, visitedRooms: HashSet[string]): int =
   if visitedRooms.contains(current.name):
     return 0
 
@@ -36,7 +25,7 @@ proc countPathsTo(current, destination: CaveRoom, visitedRooms: HashSet[string])
 
   successfulPaths.sum()
 
-proc countPaths(cavern: Cavern): int =
+func countPaths(cavern: Cavern): int =
   let
     startRoom = cavern.rooms["start"]
     endRoom = cavern.rooms["end"]
@@ -45,6 +34,13 @@ proc countPaths(cavern: Cavern): int =
 
 
 
-# main
-proc logic*(input: string): int =
+func solve*(input: string): int =
   newCavern(input).countPaths()
+
+
+
+tests:
+  solve(readFile("test.txt")) == 10
+  solve(readFile("test_slightly_larger_example.txt")) == 19
+  solve(readFile("test_even_larger_example.txt")) == 226
+  solve(readFile("input.txt")) == 3292

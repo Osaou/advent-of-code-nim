@@ -5,8 +5,6 @@ import fusion/matching
 import math
 import utils
 
-{.experimental: "caseStmtMacros".}
-
 
 
 type
@@ -16,9 +14,6 @@ type
     heightValues: seq[int]
 
 
-
-func charToInt(c: char): int =
-  c.int - 48
 
 func newHeightmap*(input: string): Heightmap =
   let

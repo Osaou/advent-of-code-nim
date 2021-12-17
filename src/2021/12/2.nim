@@ -1,21 +1,9 @@
-# imports
 import std/[strformat, strutils, sequtils, sugar, tables, sets, math]
 import fusion/matching
 import utils
 import data
 
-{.experimental: "caseStmtMacros".}
 
-
-
-# tests
-const
-  expectedTestResult* = 103
-  expectedRunResult* = 89592
-
-
-
-# daily logic
 
 type PossiblePath = tuple
   count: int
@@ -51,7 +39,7 @@ func countPathsTo(current, destination: CaveRoom, visitedRooms: CountTable[strin
 
   successfulPaths
 
-proc countPaths(cavern: Cavern): int =
+func countPaths(cavern: Cavern): int =
   let
     startRoom = cavern.rooms["start"]
     endRoom = cavern.rooms["end"]
@@ -74,6 +62,13 @@ proc countPaths(cavern: Cavern): int =
 
 
 
-# main
-proc logic*(input: string): int =
+func solve*(input: string): int =
   newCavern(input).countPaths()
+
+
+
+tests:
+  solve(readFile("test.txt")) == 36
+  solve(readFile("test_slightly_larger_example.txt")) == 103
+  solve(readFile("test_even_larger_example.txt")) == 3509
+  solve(readFile("input.txt")) == 89_592

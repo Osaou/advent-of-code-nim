@@ -1,13 +1,6 @@
-# imports
 import std/[strformat, strutils, sequtils, sugar, math]
+import utils
 import data
-
-
-
-# tests
-const
-  expectedTestResult* = 195
-  expectedRunResult* = 314
 
 
 
@@ -26,7 +19,12 @@ proc findSimultaneousFlashEvent(group: var OctopusGroup): int64 =
 
 
 
-# daily logic
-proc logic*(input: string): int64 =
+func solve*(input: string): int64 =
   var group = newOctopusGroup(input)
   group.findSimultaneousFlashEvent()
+
+
+
+tests:
+  solve(readFile("test.txt")) == 195
+  solve(readFile("input.txt")) == 314

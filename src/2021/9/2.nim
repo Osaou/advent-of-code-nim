@@ -1,20 +1,8 @@
-# imports
-import std/strformat
-import std/strutils
-import std/sequtils
-import std/sugar
-import std/algorithm
+import std/[strformat, strutils, sequtils, sugar, algorithm]
 import fusion/matching
 import math
 import utils
 import data
-
-
-
-# tests
-const
-  expectedTestResult* = 1_134
-  expectedRunResult* = 916_688
 
 
 
@@ -53,8 +41,7 @@ func addBasin(marked: var BasinMarker, size: int) =
 
 
 
-# logic
-func logic*(input: string): int =
+func solve*(input: string): int =
   let
     map = newHeightmap(input)
   var
@@ -69,3 +56,9 @@ func logic*(input: string): int =
   # multiply 3 largest basins
   [@first, @second, @third, all _] := marked.basins.sorted().reversed()
   first * second * third
+
+
+
+tests:
+  solve(readFile("test.txt")) == 1_134
+  solve(readFile("input.txt")) == 916_688

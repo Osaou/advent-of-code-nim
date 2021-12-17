@@ -1,22 +1,11 @@
-# imports
 import std/[strformat, strutils, sequtils, sugar, tables, sets, math]
 import fusion/matching
 import utils
 import matrix
 
-{.experimental: "caseStmtMacros".}
 
 
-
-# tests
-const
-  expectedTestResult* = 0
-  expectedRunResult* = 0
-
-
-
-# main
-proc logic*(input: string): int =
+proc solve*(input: string): string =
   # start by splitting up the dots and folds info
   [@dotsInstructions, @foldsInstructions] := input
     .split("\n\n")
@@ -63,8 +52,6 @@ proc logic*(input: string): int =
           bottomFlipped = bottom.flipV()
         paper = top.add(bottomFlipped)
 
-  echo "folded: ", paper
-
   #let
   #  letterCount = 8
   #  letterHeight = folded.N
@@ -80,4 +67,4 @@ proc logic*(input: string): int =
   #  letters.add(letter)
   #echo "letters: ", letters
 
-  0
+  $paper

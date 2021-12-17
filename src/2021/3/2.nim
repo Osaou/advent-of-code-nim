@@ -1,17 +1,6 @@
-# imports
-import std/strformat
-import std/strutils
-import std/sequtils
-import std/sugar
+import std/[strformat, strutils, sequtils, sugar]
 import elvis
 import utils
-
-
-
-# tests
-const
-  expectedTestResult* = 230
-  expectedRunResult* = 6775520
 
 
 
@@ -45,8 +34,9 @@ proc count1s0sInColumnForRating(rating: seq[char]): RatingCount =
     least:  ones <  zeroes ? '1' ! '0'
   )
 
-# logic
-proc logic*(input: string): int =
+
+
+proc solve*(input: string): int =
   let
     measurements = input
       # read in as seq[string] of all lines
@@ -81,3 +71,9 @@ proc logic*(input: string): int =
 
   # end result is oxygen generator multiplied by co2 scrubber
   oxygenGeneratorRating * co2ScrubberRating
+
+
+
+tests:
+  solve(readFile("test.txt")) == 230
+  solve(readFile("input.txt")) == 6_775_520

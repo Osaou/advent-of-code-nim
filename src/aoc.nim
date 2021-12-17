@@ -27,7 +27,7 @@ if month == Month.mDec and now.monthday <= 25:
   day = now.monthday
 
 var
-  flagClear = false
+  flagClean = false
   flagPrintConfig = false
   flagFetchInput = false
   flagSendAnswer = false
@@ -52,26 +52,22 @@ while true:
           of "1": part = 1
           of "2": part = 2
           else: quit 1
-        of "i", "input": inputFile = some(opts.val)
+        of "f", "inputfile": inputFile = some(opts.val)
         else: quit 1
     of cmdArgument:
       case opts.key
-        of "clear": flagClear = true
-        of "c", "printconf": flagPrintConfig = true
-        of "f", "fetch": flagFetchInput = true
-        of "s", "send": flagSendAnswer = true
+        of "clean": flagClean = true
+        of "printconf": flagPrintConfig = true
+        of "fetch": flagFetchInput = true
+        of "send": flagSendAnswer = true
         of "initday": flagInitDay = true
-        of "t", "test": flagTest = true
+        of "test": flagTest = true
         of "test:all": flagTestAll = true
-        of "test:gui":
-          flagGui = true
-          flagGuiTestFile = true
-        of "r", "run": flagRun = true
-        of "run:gui":
+        of "run": flagRun = true
+        of "perf": flagPerfTest = true
+        of "gui":
           flagGui = true
           flagGuiTestFile = false
-        of "gui": flagGui = true
-        of "perf": flagPerfTest = true
         else: quit 1
 
 
@@ -79,61 +75,80 @@ while true:
 proc printConfig() =
   echo "Working against year ", year, ", month ", month, ", day ", day, ", part ", part
 
-let baseCompileOpts = "--warning:UnusedImport:off --verbosity:0"
+let baseCompileOpts = "--warning:UnusedImport:off --verbosity:0 -d:nimNoLentIterators --experimental:caseStmtMacros"
 
 proc compileWithRunner(runnerFile: string, opts: string, runCommand: (binaryPath: string) -> void) =
+  let
+    srcDir = fmt"./src"
+    solutionDir = fmt"{srcDir}/{year}/{day}"
+    buildDir = fmt"./build/{year}/{day}"
+    tempDir = "./tmp"
+  createDir(buildDir)
+  createDir(tempDir)
+
   # start by copying all nim files from selected day's folder
-  for variant in walkFiles(fmt"./src/{year}/{day}/*.nim"):
+  for variant in walkFiles(fmt"{solutionDir}/*.nim"):
     let (_, fileName, _) = splitFile(variant)
-    createDir("./tmp")
-    copyFile(variant, fmt"./tmp/{fileName}.nim")
+    copyFile(variant, fmt"{tempDir}/{fileName}.nim")
+
+  # copy all input files to build dir
+  for inputFile in walkFiles(fmt"{solutionDir}/*.txt"):
+    let (_, fileName, _) = splitFile(inputFile)
+    copyFile(inputFile, fmt"{buildDir}/{fileName}.txt")
 
   # now iterate over all solutions for selected part and compile + run
-  for variant in walkFiles(fmt"./src/{year}/{day}/{part}*.nim"):
+  for variant in walkFiles(fmt"{solutionDir}/{part}*.nim"):
     let
       (_, fileName, _) = splitFile(variant)
-      outDir = fmt"./build/{year}/{day}"
-      outFile = outDir / fileName
+      buildFile = buildDir / fileName
 
     # prepare source files
-    createDir(outDir)
-    copyFile("./src/utils.nim", "./tmp/utils.nim")
-    copyFile("./src/tools-noop.nim", "./tmp/tools.nim")
-    copyFile("./src/cputicks.nim", "./tmp/cputicks.nim")
-    copyFile(fmt"./src/{runnerFile}", "./tmp/runner.nim")
-    copyFile(variant, "./tmp/logic.nim")
+    copyFile(fmt"{srcDir}/utils.nim", fmt"{tempDir}/utils.nim")
+    copyFile(fmt"{srcDir}/tools-noop.nim", fmt"{tempDir}/tools.nim")
+    copyFile(fmt"{srcDir}/cputicks.nim", fmt"{tempDir}/cputicks.nim")
+    copyFile(fmt"{srcDir}/{runnerFile}", fmt"{tempDir}/runner.nim")
+    copyFile(variant, fmt"{tempDir}/solution.nim")
 
     # compile
-    if execShellCmd(fmt"nim compile {baseCompileOpts} {opts} --out:{outFile} ./tmp/runner.nim") != 0:
+    if execShellCmd(fmt"nim compile {baseCompileOpts} {opts} --out:{buildFile} {tempDir}/runner.nim") != 0:
       quit 1
 
     # run
-    runCommand(outFile)
+    runCommand(buildFile)
 
 proc compileWithRunner(runnerFile: string, runCommand: (binaryPath: string) -> void) =
   compileWithRunner(runnerFile, "", runCommand)
 
 proc compileForWeb(dataFile: string, runCommand: (binaryPath: string) -> void) =
+  let
+    solutionDir = fmt"./src/{year}/{day}"
+    buildDir = fmt"./build/{year}/{day}"
+    tempDir = "./tmp"
+  createDir(buildDir)
+  createDir(tempDir)
+
   # start by copying all nim files from selected day's folder
-  for variant in walkFiles(fmt"./src/{year}/{day}/*.nim"):
-    let (_, fileName, _) = splitFile(variant)
-    createDir("./tmp")
-    copyFile(variant, fmt"./tmp/{fileName}.nim")
+  for srcFile in walkFiles(fmt"{solutionDir}/*.nim"):
+    let (_, fileName, _) = splitFile(srcFile)
+    copyFile(srcFile, fmt"{tempDir}/{fileName}.nim")
+
+  # copy all input files to build dir
+  for inputFile in walkFiles(fmt"{solutionDir}/*.txt"):
+    let (_, fileName, _) = splitFile(inputFile)
+    copyFile(inputFile, fmt"{buildDir}/{fileName}.txt")
 
   # now iterate over all solutions for selected part and compile + run
-  for variant in walkFiles(fmt"./src/{year}/{day}/{part}*.nim"):
+  for variant in walkFiles(fmt"{solutionDir}/gui_{part}*.nim"):
     let
       (_, fileName, _) = splitFile(variant)
-      outDir = fmt"./build/{year}/{day}"
-      outFile = outDir / fileName
-      outHtml = fmt"{outFile}.html"
+      buildFile = buildDir / fileName
+      buildHtml = fmt"{buildFile}.html"
 
     # prepare source files
-    createDir(outDir)
-    copyFile("./src/utils.nim", "./tmp/utils.nim")
-    copyFile("./src/tools-web.nim", "./tmp/tools.nim")
-    copyFile("./src/template-web.nim", "./tmp/runner.nim")
-    copyFile(variant, "./tmp/logic.nim")
+    copyFile("./src/utils.nim", fmt"{tempDir}/utils.nim")
+    copyFile("./src/tools-web.nim", fmt"{tempDir}/tools.nim")
+    copyFile("./src/template-web.nim", fmt"{tempDir}/runner.nim")
+    copyFile(variant, fmt"{tempDir}/solution.nim")
 
     # prepare runner file with input data
     let
@@ -141,18 +156,18 @@ proc compileForWeb(dataFile: string, runCommand: (binaryPath: string) -> void) =
       runnerContent = readFile("./src/template-web.html")
         .replace("{RUN_SCRIPT}", fmt"{fileName}.js")
         .replace("{DATA_INPUT}", dataInput)
-    writeFile(outHtml, runnerContent)
+    writeFile(buildHtml, runnerContent)
 
     # compile, targetting javascript
-    if execShellCmd(fmt"nim js {baseCompileOpts} --out:{outFile}.js ./tmp/runner.nim") != 0:
+    if execShellCmd(fmt"nim js {baseCompileOpts} --out:{buildFile}.js {tempDir}/runner.nim") != 0:
       quit 1
 
     # run
-    runCommand(outHtml)
+    runCommand(buildHtml)
 
 
 
-if flagClear:
+if flagClean:
   removeDir("./build")
   removeDir("./tmp")
 
@@ -175,11 +190,8 @@ if flagInitDay:
 
 if flagTest:
   compileWithRunner("runner-test.nim", " --verbosity:1", proc (binary: string) =
-    var input: string
-    case inputFile:
-      of None(): input = "test.txt"
-      of Some(@fileName): input = fileName
-    discard execShellCmd(fmt"{binary} test ./src/{year}/{day}/{input}")
+    let (dir, bin, _) = splitFile(binary)
+    discard execShellCmd(fmt"cd {dir} && ./{bin}")
   )
 
 if flagTestAll:
