@@ -1,5 +1,4 @@
-{.experimental: "caseStmtMacros".}
-import std/[strformat, strutils, sequtils, sugar, tables, sets, math]
+import std/[strformat, strutils, sequtils, sugar, tables, sets, options, math]
 import fusion/matching
 import utils
 
