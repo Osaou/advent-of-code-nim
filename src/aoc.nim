@@ -94,6 +94,7 @@ proc compileWithRunner(runnerFile: string, opts: string, runCommand: (binaryPath
 
     # prepare source files
     copyFile(fmt"{srcDir}/utils.nim", fmt"{tempDir}/utils.nim")
+    copyFile(fmt"{srcDir}/matrix.nim", fmt"{tempDir}/matrix.nim")
     copyFile(fmt"{srcDir}/tools-noop.nim", fmt"{tempDir}/tools.nim")
     copyFile(fmt"{srcDir}/cputicks.nim", fmt"{tempDir}/cputicks.nim")
     copyFile(fmt"{srcDir}/{runnerFile}", fmt"{tempDir}/runner.nim")
@@ -133,6 +134,7 @@ proc compileForWeb(dataFile: string, runCommand: (binaryPath: string) -> void) =
 
     # prepare source files
     copyFile("./src/utils.nim", fmt"{tempDir}/utils.nim")
+    copyFile("./src/matrix.nim", fmt"{tempDir}/matrix.nim")
     copyFile("./src/tools-web.nim", fmt"{tempDir}/tools.nim")
     copyFile("./src/template-web.nim", fmt"{tempDir}/runner.nim")
     copyFile(variant, fmt"{tempDir}/solution.nim")
@@ -183,8 +185,8 @@ if flagTest:
 
 if flagRun:
   compileWithRunner("runner-main.nim", "-d:danger", proc (binary: string) =
-    for input in walkFiles(fmt"./src/{year}/{day}/input*.txt"):
-      discard execShellCmd(fmt"{binary} {input}")
+    let (dir, bin, _) = splitFile(binary)
+    discard execShellCmd(fmt"cd {dir} && ./{bin} {inputFile}")
   )
 
 if flagGui:
@@ -198,5 +200,6 @@ if flagGui:
 
 if flagPerfTest:
   compileWithRunner("runner-perf.nim", "-d:danger", proc (binary: string) =
-    discard execShellCmd(fmt"{binary} ./src/{year}/{day}/{inputFile}")
+    let (dir, bin, _) = splitFile(binary)
+    discard execShellCmd(fmt"cd {dir} && ./{bin} {inputFile}")
   )

@@ -33,9 +33,8 @@ Compile and then run all unit tests for a given part.
 Tip: you can have multiple solutions for a given day, since the `test` command will run all files matching the glob `./src/{year}/{day}/{part}*.nim`.
 
 ### `aoc run ...`
-Compile and then run a given part (i.e. procedure named `solve`) with input from the respective day's `input.txt` file.
+Compile and then run a given part (i.e. procedure named `solve`), defaulting to using the respective day's `input.txt` file as input.
 Tip: this command supports multiple solutions just like the `test` command does.
-Additionally, you can have multiple input data files that this command will use. The `run` command will find all input data files matching the glob `./src/{year}/{day}/input*.txt`.
 
 ### `aoc perf ...`
 Compile and then run rudimentary performance tests for a given part, defaulting to using the respective day's `input.txt` file as input.
@@ -47,7 +46,7 @@ It will only use solution files matching the glob `./src/{year}/{day}/gui_{part}
 Tip: you can put additional resources in the `./resources` directory, which will all be available to your solution in the "current directory" when run.
 
 ### `aoc --inputfile:path/to/file.txt ...` or `aoc -f:path/to/file.txt ...`
-Sets the input data file the CLI will use. Only works for the `perf` and `gui` commands.
+Sets the input data file the CLI will use. Only works for the `run`, `perf` and `gui` commands.
 
 ### `aoc clean`
 Clean up the various temp directories (`./tmp`, `./build` etc) created by running other commands.

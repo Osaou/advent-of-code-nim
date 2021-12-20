@@ -5,6 +5,7 @@ import utils
 
 
 proc solve*(input: string): int =
+  0
 
 
 

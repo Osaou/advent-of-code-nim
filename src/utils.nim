@@ -83,6 +83,12 @@ func parseGrid*[T: SomeInteger](input: string): seq[seq[T]] =
 
 
 
+func skip*[T](s: openArray[T], count: int): seq[T] =
+  doAssert 0 <= count and count < s.len
+  s[count ..< s.len]
+
+
+
 macro debug*(args: varargs[untyped]): untyped =
   result = nnkStmtList.newTree()
   for n in args:
