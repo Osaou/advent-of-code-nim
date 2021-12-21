@@ -3,7 +3,6 @@ import std/times
 import std/random
 import std/strformat
 import std/sequtils
-import cputicks
 import elvis
 import solution
 
@@ -63,13 +62,13 @@ let
   avg = total / float(perfRunCount)
 
 const
-  NANO_CUTOFF  = 0.001
-  NANO_MUL     = 1_000_000
+  MICRO_CUTOFF  = 0.001
+  MICRO_MUL     = 1_000_000
   MILLI_CUTOFF = 1.0
   MILLI_MUL    = 1_000
 
 func readableTime(sec: float): string =
-  if sec < NANO_CUTOFF:    fmt"{sec*NANO_MUL} ns"
+  if sec < MICRO_CUTOFF:   fmt"{sec*MICRO_MUL} μs"
   elif sec < MILLI_CUTOFF: fmt"{sec*MILLI_MUL} ms"
   else:                    fmt"{sec} sec"
 
