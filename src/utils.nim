@@ -73,11 +73,14 @@ func charToInt*(c: char): int =
 
 
 
-func parseGrid*[T: SomeInteger](input: string): seq[seq[T]] =
+func parseGrid*[T](input: string): seq[seq[T]] =
   for line in input.splitLines():
     var row = newSeq[T]()
     for c in line:
-      row &= c.charToInt()
+      when T is SomeInteger:
+        row &= c.charToInt()
+      else:
+        row &= c
 
     result &= row
 
