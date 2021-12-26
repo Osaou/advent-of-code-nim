@@ -12,7 +12,6 @@ type
 
   PartialSolution = object
     state: BurrowState
-    moves: seq[BurrowState]
     predictedCost: int
     totalCost: int
 
@@ -32,30 +31,19 @@ const
   HOME_C_COL = 7
   HOME_D_COL = 9
   HOME_COLS = [HOME_A_COL, HOME_B_COL, HOME_C_COL, HOME_D_COL]
-  #NO_PARK_COL_1 = 4
-  #NO_PARK_COL_2 = 6
-  #NO_PARK_COL_3 = 8
-  #NO_PARK_COLS = [NO_PARK_COL_1, NO_PARK_COL_2, NO_PARK_COL_3]
   HALLWAY_ROW = 1
   HALLWAY_COL_MIN = 1
   HALLWAY_COL_MAX = 11
-  #HALLWAY = [HALLWAY_COL_MIN, HALLWAY_COL_MIN + 1, HOME_A_COL, HOME_B_COL, HOME_C_COL, HOME_D_COL, HALLWAY_COL_MAX - 1, HALLWAY_COL_MAX]
   HALLWAY = HALLWAY_COL_MIN .. HALLWAY_COL_MAX
   EMPTY = '.'
 
 
 
 func isWinState(burrow: BurrowState): bool =
-  burrow[HOME_ROW][HOME_A_COL] == 'A' and burrow[HOME_ROW + 1][HOME_A_COL] == 'A' and
-  burrow[HOME_ROW][HOME_B_COL] == 'B' and burrow[HOME_ROW + 1][HOME_B_COL] == 'B' and
-  burrow[HOME_ROW][HOME_C_COL] == 'C' and burrow[HOME_ROW + 1][HOME_C_COL] == 'C' and
-  burrow[HOME_ROW][HOME_D_COL] == 'D' and burrow[HOME_ROW + 1][HOME_D_COL] == 'D'
-
-#func isHallwayNotEmpty(burrow: BurrowState): bool =
-#  for h in HALLWAY:
-#    if burrow[HALLWAY_ROW][h] != EMPTY:
-#      return true
-#  return false
+  burrow[HOME_ROW][HOME_A_COL] == 'A' and burrow[HOME_ROW_2][HOME_A_COL] == 'A' and
+  burrow[HOME_ROW][HOME_B_COL] == 'B' and burrow[HOME_ROW_2][HOME_B_COL] == 'B' and
+  burrow[HOME_ROW][HOME_C_COL] == 'C' and burrow[HOME_ROW_2][HOME_C_COL] == 'C' and
+  burrow[HOME_ROW][HOME_D_COL] == 'D' and burrow[HOME_ROW_2][HOME_D_COL] == 'D'
 
 func availableRoomRow(burrow: BurrowState, col: int): Option[int] =
   for row in countdown(HOME_ROW_2, HOME_ROW):
@@ -63,9 +51,6 @@ func availableRoomRow(burrow: BurrowState, col: int): Option[int] =
       return some(row)
 
   return none[int]()
-
-#func hallwayPods(burrow: BurrowState): seq[Spot] =
-#  burrow[HALLWAY_ROW].filterIt(it != EMPTY)
 
 func canMoveTo(pos: Spot): bool =
   pos == EMPTY
@@ -83,14 +68,6 @@ func homeRoomCol(pos: Spot): int =
     of 'C': HOME_C_COL
     of 'D': HOME_D_COL
     else: 0
-
-#func isHomeRoom(pos: Spot, col: int): bool =
-#  case pos:
-#    of 'A': col == HOME_A_COL
-#    of 'B': col == HOME_B_COL
-#    of 'C': col == HOME_C_COL
-#    of 'D': col == HOME_D_COL
-#    else: false
 
 func canRestAt(row, col: int): bool =
   row == HALLWAY_ROW and (
@@ -115,7 +92,6 @@ proc generateNextPossibleMoves(burrow: BurrowState): seq[MoveAttempt] =
   for col in HALLWAY:
     let spot = burrow[HALLWAY_ROW][col]
     if spot.isOccupied():
-      #echo "  moving ", spot, " from hallway (col=", col, ")"
       let
         amphipod = spot
         targetCol = amphipod.homeRoomCol()
@@ -145,7 +121,6 @@ proc generateNextPossibleMoves(burrow: BurrowState): seq[MoveAttempt] =
     for col in HOME_COLS:
       let spot = burrow[row][col]
       if spot.isOccupied():
-        #echo "  moving ", spot, " from (row=", row, ", col=", col, ")"
         block movePodFromHome:
           let
             amphipod = spot
@@ -275,15 +250,13 @@ proc predictRemainingCost(burrow: BurrowState): int =
 func `<`(a,b: PartialSolution): bool =
   a.predictedCost < b.predictedCost
 
-proc findLeastCostlySolution(start: BurrowState): tuple[attempts: int64, cost: int, moves: seq[BurrowState]] =
+proc findLeastCostlySolution(start: BurrowState): int =
   var
     partialSolutions = initHeapQueue[PartialSolution]()
     recordScores = initTable[BurrowState, int]()
-    attempts = 0'i64
 
   partialSolutions.push(PartialSolution(
     state: start,
-    moves: @[start],
     predictedCost: predictRemainingCost(start),
     totalCost: 0
   ))
@@ -296,14 +269,12 @@ proc findLeastCostlySolution(start: BurrowState): tuple[attempts: int64, cost: i
 
     # no chance to beat record?
     if totalCost > recordScores.getOrDefault(state, high(int)):
-      attempts += 1
       continue
 
     # new win state?
     if state.isWinState():
-      attempts += 1
       # by definition of A-star algorithm, first complete solution we find is the best option
-      return (attempts:attempts, cost:totalCost, moves:partialSolution.moves)
+      return totalCost
 
     # generate all possible moves from this state and see where we can get with them
     for move in state.generateNextPossibleMoves():
@@ -320,33 +291,20 @@ proc findLeastCostlySolution(start: BurrowState): tuple[attempts: int64, cost: i
         # new record to this state!
         recordScores[newState] = newTotalCost
 
-        var moves = partialSolution.moves.dup()
-        moves.add(newState)
-
         partialSolutions.push(PartialSolution(
           state: newState,
-          moves: moves,
           predictedCost: newTotalCost + predictRemainingCost(newState),
           totalCost: newTotalCost
         ))
 
   # no possible solution found
-  return (attempts:attempts, cost:0, moves:newSeq[BurrowState]())
+  return 0
 
 
 
 proc solve*(input: string): int =
-  let
-    burrow = parseGrid[Spot](input)
-    (attempts, cost, moves) = findLeastCostlySolution(burrow)
-
-  #for step, move in moves:
-  #  echo "STEP ", step+1
-  #  echo move.mapIt(it.join()).join("\n")
-  #  echo ""
-
-  #echo "tried ", attempts, " combinations"
-  cost
+  let burrow = parseGrid[Spot](input)
+  findLeastCostlySolution(burrow)
 
 
 

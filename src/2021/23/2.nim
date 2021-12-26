@@ -12,7 +12,6 @@ type
 
   PartialSolution = object
     state: BurrowState
-    moves: seq[BurrowState]
     predictedCost: int
     totalCost: int
 
@@ -260,14 +259,13 @@ proc predictRemainingCost(burrow: BurrowState): int =
 func `<`(a,b: PartialSolution): bool =
   a.predictedCost < b.predictedCost
 
-proc findLeastCostlySolution(start: BurrowState): tuple[cost:int, moves:seq[BurrowState]] =
+proc findLeastCostlySolution(start: BurrowState): int =
   var
     partialSolutions = initHeapQueue[PartialSolution]()
     recordScores = initTable[BurrowState, int]()
 
   partialSolutions.push(PartialSolution(
     state: start,
-    moves: @[start],
     predictedCost: predictRemainingCost(start),
     totalCost: 0
   ))
@@ -285,7 +283,7 @@ proc findLeastCostlySolution(start: BurrowState): tuple[cost:int, moves:seq[Burr
     # new win state?
     if state.isWinState():
       # by definition of A-star algorithm, first complete solution we find is the best option
-      return (cost:totalCost, moves:partialSolution.moves)
+      return totalCost
 
     # generate all possible moves from this state and see where we can get with them
     for move in state.generateNextPossibleMoves():
@@ -302,31 +300,20 @@ proc findLeastCostlySolution(start: BurrowState): tuple[cost:int, moves:seq[Burr
         # new record to this state!
         recordScores[newState] = newTotalCost
 
-        var newMoves = partialSolution.moves.dup()
-        newMoves.add(newState)
-
         partialSolutions.push(PartialSolution(
           state: newState,
-          moves: newMoves,
           predictedCost: newTotalCost + predictRemainingCost(newState),
           totalCost: newTotalCost
         ))
 
   # no possible solution found
-  return (cost:0, moves:newSeq[BurrowState]())
+  return 0
 
 
 
 proc solve*(input: string): int =
   let burrow = parseGrid[Spot](input)
-  let (cost, moves) = findLeastCostlySolution(burrow)
-
-  for step, move in moves:
-    echo "STEP ", step+1
-    echo move.mapIt(it.join()).join("\n")
-    echo ""
-
-  cost
+  findLeastCostlySolution(burrow)
 
 
 
