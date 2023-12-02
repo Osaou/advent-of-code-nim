@@ -102,18 +102,25 @@ macro debug*(args: varargs[untyped]): untyped =
 
 
 macro tests*(body: untyped): untyped =
-  var procBody = newStmtList()
+  var
+    procBody = newStmtList()
+    i: int = 0
   for n in body:
-    procBody.add newCall("write", newIdentNode("stdout"), newLit(fmt"TEST: "))
-    procBody.add newCall("write", newIdentNode("stdout"), newLit(n.repr))
+    i = i+1
+    procBody.add newCall("write", newIdentNode("stdout"), newLit(fmt"{i}"))
     procBody.add newIfStmt(
-      (n, newCall("writeLine", newIdentNode("stdout"), newLit(" ✅")))
+      (n, newCall("write", newIdentNode("stdout"), newLit(" ✅ ")))
     ).add(newNimNode(nnkElse).add(
-      newCall("writeLine", newIdentNode("stdout"), newLit(" ⛔"))
+      newCall("write", newIdentNode("stdout"), newLit(" ⛔ "))
     ))
+    procBody.add newCall("writeLine", newIdentNode("stdout"), newLit(n.repr))
 
   template procDecl(code): untyped =
     proc tests*() =
+      echo ""
+      echo "Running Tests"
+      echo "-------------"
       code
+      echo ""
 
   result = getAst(procDecl(procBody))
