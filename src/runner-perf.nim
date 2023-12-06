@@ -21,7 +21,7 @@ type
 
 
 
-echo "TEST: ", splitFile(paramStr(0))[1]
+echo "Performance testing part ", splitFile(paramStr(0))[1]
 
 let input = readFile(paramStr(1))
 var readings = newSeq[Reading](WARMUP_RUNS_COUNT)
