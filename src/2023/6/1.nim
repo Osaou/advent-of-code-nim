@@ -28,38 +28,24 @@ func parseUnit(line: string): seq[int] =
     .map(parseInt)
 
 func beatRecordTimes(runs: seq[tuple[ms, mm: int]]): int =
-  var answer = newSeq[int]()
-
-  for previousRecord in runs:
-    (@ms, @mm) := previousRecord
-    let wins = countPossibleBetterRuns(ms, mm)
-    answer.add(wins)
-
-  answer.foldl(a * b, 1)
+  runs
+    .mapIt(countPossibleBetterRuns(it.ms, it.mm))
+    .foldl(a * b, 1)
 
 func countPossibleBetterRuns(ms, mm: int): int =
   let half = ms div 2
-  var wins = initHashSet[int]()
+  var wins = 0
 
-  for i in 0..(ms - 1):
-    let
-      h1 = half - i
-      h2 = half + i
+  if ms mod 2 == 0:
+    wins += 1
 
-    var added = false
-
-    if h1 * (ms - h1) > mm:
-      wins.incl(h1)
-      added = true
-
-    if h2 * (ms - h2) > mm:
-      wins.incl(h2)
-      added = true
-
-    if not added:
+  for t in (half + 1) ..< ms:
+    if t * (ms - t) > mm:
+      wins += 2
+    else:
       break
 
-  wins.len
+  wins
 
 
 
