@@ -107,20 +107,17 @@ macro tests*(body: untyped): untyped =
     i: int = 0
   for n in body:
     i = i+1
-    procBody.add newCall("write", newIdentNode("stdout"), newLit(fmt"{i} "))
+    procBody.add newCall("write", newIdentNode("stdout"), newLit(fmt"{i}){'\t'}"))
     procBody.add newIfStmt(
-      (n, newCall("write", newIdentNode("stdout"), newLit(" ✅ ")))
+      (n, newCall("write", newIdentNode("stdout"), newLit("✅ ")))
     ).add(newNimNode(nnkElse).add(
       newCall("write", newIdentNode("stdout"), newLit("⛔ "))
     ))
     procBody.add newCall("writeLine", newIdentNode("stdout"), newLit(n.repr))
 
   template procDecl(code): untyped =
-    proc tests*() =
-      echo ""
-      echo "Running Tests"
-      echo "-------------"
+    proc globalUnitTests*() =
       code
-      echo ""
+      discard
 
   result = getAst(procDecl(procBody))

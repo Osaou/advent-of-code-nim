@@ -5,7 +5,7 @@ import utils
 
 
 type
-  HandType = enum
+  HandType* = enum
     HighCard
     OnePair
     TwoPair
@@ -18,11 +18,49 @@ type
     bid: int
     handType: HandType
 
-proc parseHand(input: string): Hand
-proc parseType(cards: string): HandType
+proc parseHand*(input: string): Hand
+
+#[ tests:
+  parseType("AAAAA") == FiveOfAKind
+  parseType("22222") == FiveOfAKind
+  parseType("AA8AA") == FourOfAKind
+  parseType("JJJJJ") == FiveOfAKind
+  parseType("23332") == FullHouse
+  parseType("TTT98") == ThreeOfAKind
+  parseType("23432") == TwoPair
+  parseType("A23A4") == OnePair
+  parseType("23456") == HighCard
+  parseType("KK677") == TwoPair
+  parseType("KTJJT") == FourOfAKind
+  parseType("T55J5") == FourOfAKind
+  parseType("QQQJA") == FourOfAKind
+]#
+proc parseType*(cards: string): HandType
+
 proc naiveHandType(table: CountTableRef[char]): HandType
-proc handSorter(a,b: Hand): int
-proc cardValue(card: char): int
+
+#[ tests:
+  handSorter(parseHand("33332 0"), parseHand("2AAAA 0")) < 0
+  handSorter(parseHand("2AAAA 0"), parseHand("33332 0")) > 0
+  handSorter(parseHand("77888 0"), parseHand("77788 0")) < 0
+  handSorter(parseHand("KK677 0"), parseHand("KTJJT 0")) > 0
+  handSorter(parseHand("T55J5 0"), parseHand("QQQJA 0")) > 0
+  handSorter(parseHand("23455 0"), parseHand("J3455 0")) > 0
+  handSorter(parseHand("23555 0"), parseHand("J3455 0")) < 0
+  handSorter(parseHand("AAAAA 0"), parseHand("JJJJJ 0")) < 0
+  handSorter(parseHand("JJJJJ 0"), parseHand("AAAAA 0")) > 0
+]#
+proc handSorter*(a,b: Hand): int
+
+#[ tests:
+  cardValue('J') == 1
+  cardValue('2') == 2
+  cardValue('T') == 10
+  cardValue('Q') == 12
+  cardValue('K') == 13
+  cardValue('A') == 14
+]#
+proc cardValue*(card: char): int
 
 
 
@@ -102,33 +140,5 @@ proc cardValue(card: char): int =
 
 
 tests:
-  parseType("AAAAA") == FiveOfAKind
-  parseType("22222") == FiveOfAKind
-  parseType("AA8AA") == FourOfAKind
-  parseType("JJJJJ") == FiveOfAKind
-  parseType("23332") == FullHouse
-  parseType("TTT98") == ThreeOfAKind
-  parseType("23432") == TwoPair
-  parseType("A23A4") == OnePair
-  parseType("23456") == HighCard
-  parseType("KK677") == TwoPair
-  parseType("KTJJT") == FourOfAKind
-  parseType("T55J5") == FourOfAKind
-  parseType("QQQJA") == FourOfAKind
-  handSorter(parseHand("33332 0"), parseHand("2AAAA 0")) < 0
-  handSorter(parseHand("2AAAA 0"), parseHand("33332 0")) > 0
-  handSorter(parseHand("77888 0"), parseHand("77788 0")) < 0
-  handSorter(parseHand("KK677 0"), parseHand("KTJJT 0")) > 0
-  handSorter(parseHand("T55J5 0"), parseHand("QQQJA 0")) > 0
-  handSorter(parseHand("23455 0"), parseHand("J3455 0")) > 0
-  handSorter(parseHand("23555 0"), parseHand("J3455 0")) < 0
-  handSorter(parseHand("AAAAA 0"), parseHand("JJJJJ 0")) < 0
-  handSorter(parseHand("JJJJJ 0"), parseHand("AAAAA 0")) > 0
-  cardValue('J') == 1
-  cardValue('2') == 2
-  cardValue('T') == 10
-  cardValue('Q') == 12
-  cardValue('K') == 13
-  cardValue('A') == 14
   solve(readFile("test.txt")) == 5905
   solve(readFile("input.txt")) == 243101568

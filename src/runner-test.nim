@@ -1,3 +1,13 @@
 import solution
+import solutionTests
 
-tests()
+echo ""
+echo "Doc Unit Tests"
+echo "--------------"
+docUnitTests()
+
+echo ""
+echo "Global Unit Tests"
+echo "-----------------"
+globalUnitTests()
+echo ""

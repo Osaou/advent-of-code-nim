@@ -5,7 +5,7 @@ import utils
 
 
 type
-  HandType = enum
+  HandType* = enum
     HighCard
     OnePair
     TwoPair
@@ -18,10 +18,42 @@ type
     bid: int
     handType: HandType
 
-proc parseHand(input: string): Hand
-proc parseType(cards: string): HandType
-proc handSorter(a,b: Hand): int
-proc cardValue(card: char): int
+proc parseHand*(input: string): Hand
+
+#[ tests:
+  parseType("AAAAA") == FiveOfAKind
+  parseType("22222") == FiveOfAKind
+  parseType("AA8AA") == FourOfAKind
+  parseType("23332") == FullHouse
+  parseType("TTT98") == ThreeOfAKind
+  parseType("23432") == TwoPair
+  parseType("A23A4") == OnePair
+  parseType("23456") == HighCard
+  parseType("KK677") == TwoPair
+  parseType("KTJJT") == TwoPair
+  parseType("T55J5") == ThreeOfAKind
+  parseType("QQQJA") == ThreeOfAKind
+]#
+proc parseType*(cards: string): HandType
+
+#[ tests:
+  handSorter(parseHand("33332 0"), parseHand("2AAAA 0")) < 0
+  handSorter(parseHand("2AAAA 0"), parseHand("33332 0")) > 0
+  handSorter(parseHand("77888 0"), parseHand("77788 0")) < 0
+  handSorter(parseHand("KK677 0"), parseHand("KTJJT 0")) < 0
+  handSorter(parseHand("T55J5 0"), parseHand("QQQJA 0")) > 0
+]#
+proc handSorter*(a,b: Hand): int
+
+#[ tests:
+  cardValue('2') == 2
+  cardValue('T') == 10
+  cardValue('J') == 11
+  cardValue('Q') == 12
+  cardValue('K') == 13
+  cardValue('A') == 14
+]#
+proc cardValue*(card: char): int
 
 
 
@@ -91,28 +123,5 @@ proc cardValue(card: char): int =
 
 
 tests:
-  parseType("AAAAA") == FiveOfAKind
-  parseType("22222") == FiveOfAKind
-  parseType("AA8AA") == FourOfAKind
-  parseType("23332") == FullHouse
-  parseType("TTT98") == ThreeOfAKind
-  parseType("23432") == TwoPair
-  parseType("A23A4") == OnePair
-  parseType("23456") == HighCard
-  parseType("KK677") == TwoPair
-  parseType("KTJJT") == TwoPair
-  parseType("T55J5") == ThreeOfAKind
-  parseType("QQQJA") == ThreeOfAKind
-  handSorter(parseHand("33332 0"), parseHand("2AAAA 0")) < 0
-  handSorter(parseHand("2AAAA 0"), parseHand("33332 0")) > 0
-  handSorter(parseHand("77888 0"), parseHand("77788 0")) < 0
-  handSorter(parseHand("KK677 0"), parseHand("KTJJT 0")) < 0
-  handSorter(parseHand("T55J5 0"), parseHand("QQQJA 0")) > 0
-  cardValue('2') == 2
-  cardValue('T') == 10
-  cardValue('J') == 11
-  cardValue('Q') == 12
-  cardValue('K') == 13
-  cardValue('A') == 14
   solve(readFile("test.txt")) == 6440
   solve(readFile("input.txt")) == 241344943

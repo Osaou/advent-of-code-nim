@@ -1,9 +1,4 @@
-import std/os
-import std/parseopt
-import std/times
-import std/strutils
-import std/strformat
-import std/sugar
+import std/[os, parseopt, times, strutils, strformat, sequtils, sugar, re]
 
 
 
@@ -99,6 +94,36 @@ proc compileWithRunner(runnerFile: string, opts: string, runCommand: (binaryPath
     copyFile(fmt"{srcDir}/cputicks.nim", fmt"{tempDir}/cputicks.nim")
     copyFile(fmt"{srcDir}/{runnerFile}", fmt"{tempDir}/runner.nim")
     copyFile(variant, fmt"{tempDir}/solution.nim")
+
+    let docUnitTestsTemplate = """
+import std/[strformat, macros]
+import solution
+macro tests(body: untyped): untyped =
+  var
+    procBody = newStmtList()
+    i: int = 0
+  for n in body:
+    i = i+1
+    procBody.add newCall("write", newIdentNode("stdout"), newLit(fmt"{i}){'\t'}"))
+    procBody.add newIfStmt(
+      (n, newCall("write", newIdentNode("stdout"), newLit("✅ ")))
+    ).add(newNimNode(nnkElse).add(
+      newCall("write", newIdentNode("stdout"), newLit("⛔ "))
+    ))
+    procBody.add newCall("writeLine", newIdentNode("stdout"), newLit(n.repr))
+  template procDecl(code): untyped =
+    proc docUnitTests*() =
+      code
+      discard
+  result = getAst(procDecl(procBody))
+tests:"""
+    writeFile(fmt"{tempDir}/solutionTests.nim", docUnitTestsTemplate & readFile(fmt"{tempDir}/solution.nim")
+      .findAll(re"\#\[ tests:\n[\w\d\s()\[\]{}<>,;:%@+='""\$\^\n_-]*\]\#")
+      .mapIt(it.strip)
+      .mapIt(it.multiReplace(("#[ tests:", ""), ("]#", "")))
+      .filterIt(it != "")
+      .join("\n")
+      .indent(1))
 
     # compile
     if execShellCmd(fmt"nim compile {baseCompileOpts} {opts} --out:{buildFile} {tempDir}/runner.nim") != 0:
