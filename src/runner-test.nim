@@ -1,13 +1,10 @@
 import solution
 import solutionTests
 
-echo ""
-echo "Doc Unit Tests"
-echo "--------------"
-docUnitTests()
+when declared(docUnitTests):
+  docUnitTests()
 
-echo ""
-echo "Global Unit Tests"
-echo "-----------------"
-globalUnitTests()
+when declared(globalUnitTests):
+  globalUnitTests()
+
 echo ""

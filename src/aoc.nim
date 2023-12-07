@@ -95,7 +95,12 @@ proc compileWithRunner(runnerFile: string, opts: string, runCommand: (binaryPath
     copyFile(fmt"{srcDir}/{runnerFile}", fmt"{tempDir}/runner.nim")
     copyFile(variant, fmt"{tempDir}/solution.nim")
 
-    let docUnitTestsTemplate = """
+    let
+      docUnitTests = readFile(fmt"{tempDir}/solution.nim")
+        .findAll(re"\#\[ tests:\n[\w\d\s()\[\]{}<>.,;:%@+='""\$\^\n_-]*\]\#")
+        .mapIt(it.multiReplace(("#[ tests:", ""), ("]#", "")))
+        .filterIt(it != "")
+      docUnitTestsTemplate = if docUnitTests.len <= 0: "" else: """
 import std/[strformat, macros]
 import solution
 macro tests(body: untyped): untyped =
@@ -103,7 +108,7 @@ macro tests(body: untyped): untyped =
     procBody = newStmtList()
     i: int = 0
   for n in body:
-    i = i+1
+    i += 1
     procBody.add newCall("write", newIdentNode("stdout"), newLit(fmt"{i}){'\t'}"))
     procBody.add newIfStmt(
       (n, newCall("write", newIdentNode("stdout"), newLit("✅ ")))
@@ -113,17 +118,13 @@ macro tests(body: untyped): untyped =
     procBody.add newCall("writeLine", newIdentNode("stdout"), newLit(n.repr))
   template procDecl(code): untyped =
     proc docUnitTests*() =
+      echo ""
+      echo "Doc Unit Tests"
+      echo "--------------"
       code
-      discard
   result = getAst(procDecl(procBody))
 tests:"""
-    writeFile(fmt"{tempDir}/solutionTests.nim", docUnitTestsTemplate & readFile(fmt"{tempDir}/solution.nim")
-      .findAll(re"\#\[ tests:\n[\w\d\s()\[\]{}<>,;:%@+='""\$\^\n_-]*\]\#")
-      .mapIt(it.strip)
-      .mapIt(it.multiReplace(("#[ tests:", ""), ("]#", "")))
-      .filterIt(it != "")
-      .join("\n")
-      .indent(1))
+    writeFile(fmt"{tempDir}/solutionTests.nim", docUnitTestsTemplate & docUnitTests.join("\n"))
 
     # compile
     if execShellCmd(fmt"nim compile {baseCompileOpts} {opts} --out:{buildFile} {tempDir}/runner.nim") != 0:

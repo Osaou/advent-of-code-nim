@@ -106,7 +106,7 @@ macro tests*(body: untyped): untyped =
     procBody = newStmtList()
     i: int = 0
   for n in body:
-    i = i+1
+    i += 1
     procBody.add newCall("write", newIdentNode("stdout"), newLit(fmt"{i}){'\t'}"))
     procBody.add newIfStmt(
       (n, newCall("write", newIdentNode("stdout"), newLit("✅ ")))
@@ -117,7 +117,9 @@ macro tests*(body: untyped): untyped =
 
   template procDecl(code): untyped =
     proc globalUnitTests*() =
+      echo ""
+      echo "Global Unit Tests"
+      echo "-----------------"
       code
-      discard
 
   result = getAst(procDecl(procBody))
