@@ -4,8 +4,21 @@ import utils
 
 
 
-#[ tests:
+proc solve*(input: string): int
+proc compute*(input: string): int
+
+tests:
   solve(readFile("test.txt")) == 0
+  #solve(readFile("input.txt")) == 0
+
+
+
+proc solve(input: string): int =
+  input.
+    compute()
+
+#[ tests:
+  compute("123") == 0
 ]#
-proc solve*(input: string): int =
+proc compute(input: string): int =
   0

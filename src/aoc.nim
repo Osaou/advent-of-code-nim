@@ -97,11 +97,12 @@ proc compileWithRunner(runnerFile: string, opts: string, runCommand: (binaryPath
 
     let
       docUnitTests = readFile(fmt"{tempDir}/solution.nim")
-        .findAll(re"\#\[ tests:\n[\w\d\s()\[\]{}<>.,;:!%@+='""\$\^\n_-]*\]\#")
+        .findAll(re"\#\[ tests:\n[\w\d\s()\[\]{}<>.,;:|!%@+='""\$\^\n_-]*\]\#")
         .mapIt(it.multiReplace(("#[ tests:", ""), ("]#", "")))
         .filterIt(it != "")
       docUnitTestsTemplate = if docUnitTests.len <= 0: "" else: """
-import std/[strformat, macros]
+import std/[strformat, strutils, sequtils, macros]
+import matrix
 import solution
 macro tests(body: untyped): untyped =
   var

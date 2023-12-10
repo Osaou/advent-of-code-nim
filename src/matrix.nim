@@ -9,6 +9,7 @@ type
     lastRow*, lastCol*: int
 
 func matrix*[T](rows,cols: int): Matrix[T]
+func matrix*[T](rows,cols: int, val: T): Matrix[T]
 func matrix*[T](source: seq[seq[T]]): Matrix[T]
 func identity*[T](size: int): Matrix[T]
 func `$`*[T](matrix: Matrix[T]): string
@@ -37,6 +38,18 @@ func matrix*[T](rows,cols: int): Matrix[T] =
     lastRow: rows - 1,
     lastCol: cols - 1
   )
+
+func matrix*[T](rows,cols: int, val: T): Matrix[T] =
+  result = Matrix[T](
+    data: newSeq[T](rows * cols),
+    rows: rows,
+    cols: cols,
+    lastRow: rows - 1,
+    lastCol: cols - 1
+  )
+  for i in 0 .. result.lastRow:
+    for j in 0 .. result.lastCol:
+      result[i,j] = val
 
 func matrix*[T](source: seq[seq[T]]): Matrix[T] =
   let
