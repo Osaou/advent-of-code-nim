@@ -2,6 +2,12 @@ import std/[os, parseopt, times, strutils, strformat, sequtils, sugar, re]
 
 
 
+if not fileExists("./src/aoc.nim"):
+  echo "Not a valid AoC code directory!"
+  quit 1
+
+
+
 let
   now = now()
   month = now.month
