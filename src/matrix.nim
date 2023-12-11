@@ -1,4 +1,4 @@
-import std/strformat
+import std/[strformat, sequtils]
 
 
 
@@ -41,15 +41,12 @@ func matrix*[T](rows,cols: int): Matrix[T] =
 
 func matrix*[T](rows,cols: int, val: T): Matrix[T] =
   result = Matrix[T](
-    data: newSeq[T](rows * cols),
+    data: newSeqWith(rows * cols, val),
     rows: rows,
     cols: cols,
     lastRow: rows - 1,
     lastCol: cols - 1
   )
-  for i in 0 .. result.lastRow:
-    for j in 0 .. result.lastCol:
-      result[i,j] = val
 
 func matrix*[T](source: seq[seq[T]]): Matrix[T] =
   let
