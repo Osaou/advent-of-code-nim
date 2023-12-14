@@ -25,6 +25,8 @@ func flipH*[T](source: Matrix[T]): Matrix[T]
 func flipV*[T](source: Matrix[T]): Matrix[T]
 func splitH*[T](source: Matrix[T], column: int): tuple[left: Matrix[T], right: Matrix[T]]
 func splitV*[T](source: Matrix[T], row: int): tuple[top: Matrix[T], bottom: Matrix[T]]
+func rotateCCW*[T](source: Matrix[T]): Matrix[T]
+func rotateCW*[T](source: Matrix[T]): Matrix[T]
 
 
 
@@ -213,6 +215,16 @@ func splitV*[T](source: Matrix[T], row: int): tuple[top: Matrix[T], bottom: Matr
       bottom[i,j] = source[i + r, j]
 
   (top:top, bottom:bottom)
+
+func rotateCCW*[T](source: Matrix[T]): Matrix[T] =
+  source
+    .transpose
+    .flipV
+
+func rotateCW*[T](source: Matrix[T]): Matrix[T] =
+  source
+    .transpose
+    .flipH
 
 
 

@@ -9,7 +9,7 @@ proc compute*(input: string): int
 
 tests:
   solve(readFile("test.txt")) == 0
-  #solve(readFile("input.txt")) == 0
+#  solve(readFile("input.txt")) == 0
 
 
 
