@@ -14,8 +14,8 @@ tests:
 
 
 proc solve(input: string): int =
-  input.
-    compute()
+  input
+    .compute()
 
 #[ tests:
   compute("123") == 0
