@@ -1,4 +1,4 @@
-import std/[strutils, strformat, macros]
+import std/[sequtils, strutils, strformat, macros]
 
 
 
@@ -71,10 +71,22 @@ func isInt*(c: char): bool =
 func charToInt*(c: char): int =
   c.int - 48
 
+func intToChar*(c: int): char =
+  char(c + 48)
+
 
 
 func parseGrid*[T](input: string): seq[seq[T]] =
-  for line in input.splitLines():
+  let
+    lines = input.splitLines()
+    width = lines[0].len
+    height = lines.len
+
+  var grid = newSeq[seq[T]](width * height)
+
+  for line in lines:
+    assert line.len == width
+
     var row = newSeq[T]()
     for c in line:
       when T is SomeInteger:
@@ -82,7 +94,36 @@ func parseGrid*[T](input: string): seq[seq[T]] =
       else:
         row &= c
 
-    result &= row
+    grid &= row
+
+  grid
+
+func parseGridWithBoundary*[T](input: string, boundary: T): seq[seq[T]] =
+  let
+    lines = input.splitLines()
+    width = lines[0].len
+    height = lines.len
+
+  var grid = newSeq[seq[T]](width * height)
+  grid &= newSeqWith(width + 2, boundary)
+
+  for line in lines:
+    assert line.len == width
+
+    var row = newSeq[T]()
+    row &= boundary
+
+    for c in line:
+      when T is SomeInteger:
+        row &= c.charToInt()
+      else:
+        row &= c
+
+    row &= boundary
+    grid &= row
+
+  grid &= newSeqWith(width + 2, boundary)
+  grid
 
 
 
