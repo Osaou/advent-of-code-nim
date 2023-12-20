@@ -9,24 +9,18 @@ type
   Command = tuple
     dir: char
     len: int
-  Vector2 = object
+  Vector2 = tuple
     x,y: int
   Direction = enum
     U, R, D, L
-  Wall = object
-    pos: Vector2
-    aim: Vector2
-    dir: Direction
-    len: int
-  Lake = object
-    walls: seq[Wall]
 
 proc solve*(input: string): int
 proc digLavaLake*(input: string): int
+proc shoelace*(vertices: seq[Vector2]): int
 
 tests:
-  solve(readFile("test.txt")) == 62952408144115
-#  solve(readFile("input.txt")) ==
+  solve(readFile("test.txt")) == 952408144115
+  solve(readFile("input.txt")) == 79088855654037
 
 
 
@@ -41,34 +35,24 @@ proc digLavaLake(input: string): int =
     .mapIt((dir: it[2][7], len: it[2][2..<7]))
     .mapIt((dir: it.dir, len: fromHex[int](it.len)).Command)
 
-  echo commands[0]
-
   var
-    lake = Lake(walls: newSeq[Wall]())
+    vertices = newSeq[Vector2]()
+    perimeter = 0
     cx = 0
     cy = 0
-    xmin = 0
-    xmax = 0
-    ymin = 0
-    ymax = 0
 
   for command in commands:
     let
-      pos = Vector2(x:cx, y:cy)
+      pos = (cx, cy).Vector2
       dir = case command.dir
         of '3': U
         of '0': R
         of '1': D
         else: L
-      trajectory = case dir
-        of U: Vector2(x: 0, y: -1)
-        of R: Vector2(x: 1, y: 0)
-        of D: Vector2(x: 0, y: 1)
-        of L: Vector2(x: -1, y: 0)
       len = command.len
-      wall = Wall(pos:pos, aim:trajectory, dir:dir, len:len)
 
-    lake.walls.add(wall)
+    vertices.add(pos)
+    perimeter += len
 
     case dir:
     of U: cy -= len
@@ -76,21 +60,18 @@ proc digLavaLake(input: string): int =
     of D: cy += len
     of L: cx -= len
 
-    if cx < xmin:
-      xmin = cx
-    if cx > xmax:
-      xmax = cx
+  shoelace(vertices) +
+    perimeter div 2 +
+    1 # we started digging from a 1x1 hole
 
-    if cy < ymin:
-      ymin = cy
-    if cy > ymax:
-      ymax = cy
+proc shoelace*(vertices: seq[Vector2]): int =
+  var area = 0
 
-  let
-    width = xmax + abs(xmin) + 1
-    height = ymax + abs(ymin) + 1
-    xstart = abs(xmin)
-    ystart = abs(ymin)
+  for v in 0 ..< vertices.len-1:
+    let
+      (x1, y1) = vertices[v]
+      (x2, y2) = vertices[v + 1]
 
-  echo "width: ", width
-  echo "height: ", height
+    area += x1 * y2 - x2 * y1
+
+  area div 2
