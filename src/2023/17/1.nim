@@ -8,14 +8,43 @@ import matrix
 type
   Position = tuple
     x,y: int
-  Node = ref object
+  ProgressState = tuple
     pos: Position
+    dir: Position
+    straight: int
+  Node = ref object
+    state: ProgressState
     cost: int
     priority: int
     prev: Node
 
+# [
+proc `hash`(x: ProgressState): int =
+  x.pos.y +
+    x.pos.x * 1_000 +
+    x.dir.y * 1_000_000 +
+    x.dir.x * 1_000_010 +
+    x.straight * 1_000_020
+#]#
+
 proc `<`(a, b: Node): bool =
+  #a.cost < b.cost
+
   a.priority < b.priority
+  #a.priority < b.priority and a.cost < b.cost
+  #(a.priority div 3) < (b.priority div 3) and a.cost < b.cost
+
+  #[
+  let prio = a.priority - b.priority
+  #let prio = (a.priority div 3) - (b.priority div 3)
+  #let prio = (a.priority div 2) - (b.priority div 2)
+  #let prio = (a.priority - b.priority) + 2
+  if prio < 0: true
+  elif prio > 0: false
+  else: a.cost < b.cost
+  #]#
+
+  #(a.cost + a.priority) < (b.cost + b.priority)
 
 proc solve*(input: string): int
 #proc dijkstra(grid: Matrix[int]): int
@@ -39,9 +68,10 @@ proc solve(input: string): int =
     .mapIt(it.toSeq.map(charToInt))
     .matrix
 
+  echo "finding the shortest path..."
   let path = dijkstra(grid)
 
-  #[
+  # [
   echo "shortest path:"
   renderPath(grid, path)
   #]#
@@ -53,14 +83,19 @@ proc solve(input: string): int =
 #proc dijkstra(grid: Matrix[int]): int =
 proc dijkstra(grid: Matrix[int]): seq[Position] =
   let
-    start = Node(pos:(0,0).Position, cost:0, priority:0, prev:nil)
+    start = Node(state:(pos:(0,0).Position, dir:(0,0).Position, straight:0).ProgressState, cost:0, priority:0, prev:nil)
     goal = (grid.lastRow, grid.lastCol).Position
 
   var
-    distances = matrix[seq[int]](grid.rows, grid.cols)
+    #distances = matrix[seq[int]](grid.rows, grid.cols)
     #previous = matrix(grid.rows, grid.cols, (0,0).Position)
+    #cache = newTable[ProgressState, Node]()
+    cache = newTable[ProgressState, int]()
+    #cache: seq[seq[seq[seq[Node]]]] = newSeqWith(grid.rows, newSeqWith(grid.cols, newSeqWith(4, newSeqWith[Node](4, nil))))
     queue = [start].toHeapQueue
+    #paths = newSeq[Node]()
 
+  #[
   const DEPTH = 4 * 4
   for y in 0 ..< distances.rows:
     for x in 0 ..< distances.cols:
@@ -69,6 +104,7 @@ proc dijkstra(grid: Matrix[int]): seq[Position] =
           distances[y,x] = newSeqWith(DEPTH, 0)
         else:
           distances[y,x] = newSeqWith(DEPTH, int.high)
+  ]#
 
   #[
   for y in 0 ..< grid.rows:
@@ -82,17 +118,33 @@ proc dijkstra(grid: Matrix[int]): seq[Position] =
   ]#
 
   var recordNode: Node = nil
+  var iterations = 0
 
   while queue.len > 0:
-    let node = queue.pop()
-    let (cx, cy) = node.pos
+    let
+      node = queue.pop()
+      nodePos = node.state.pos
     #echo "checking (", x, ",", y, ")"
 
-    if node.pos == goal:
+    if nodePos == goal:
+      #[
+      paths.add(node)
+      if paths.len >= 10:
+        break
+      ]#
+
+      # [
+      recordNode = node
+      break
+      #]#
+
+      #[
       if recordNode == nil or node.cost < recordNode.cost:
         recordNode = node
 
       continue
+      ]#
+
       #[
       echo "found it?"
       if distances[goal.y, goal.x].anyIt(it == 0):
@@ -112,11 +164,19 @@ proc dijkstra(grid: Matrix[int]): seq[Position] =
       return path.reversed()
       ]#
 
-    for neighbor in [(1, 0), (0, 1), (0, -1), (-1, 0)]:
+    let
+      (cx, cy) = nodePos
+      (px, py) = if node.prev == nil: (0,0)
+                 else: node.prev.state.pos
+
+    for nei, neighbor in [(1, 0), (0, 1), (0, -1), (-1, 0)]:
       let
         (dx, dy) = neighbor
         nx = cx + dx
         ny = cy + dy
+
+      if nx == px and ny == py:
+        continue
 
       if nx < 0 or
          ny < 0 or
@@ -131,10 +191,31 @@ proc dijkstra(grid: Matrix[int]): seq[Position] =
         continue
 
       let
-        depth = depthIndex(dx,dy, straight)
-        cost = grid[ny, nx]
-        totalCost = distances[cy, cx][depth] + cost
+        #depth = depthIndex(dx,dy, straight)
+        #cost = grid[ny, nx]
+        totalCost = node.cost + grid[ny, nx]
+        state = (pos:pos, dir:neighbor.Position, straight:straight).ProgressState
 
+      #[
+      var recordCost = int.high
+      let cached = cache.getOrDefault(state, nil)
+      #let cached = cache[ny][nx][nei][straight]
+      if cached != nil:
+        recordCost = cached.cost
+      ]#
+      let recordCost = cache.getOrDefault(state, int.high)
+      if totalCost > recordCost:
+        continue
+
+      let
+        #priority = manhattanDistance(pos, goal) # HOW DO I GET THE PRIORITY RIGHT??? cost and distance should both matter, right?
+        priority = totalCost
+        next = Node(state:state, cost:totalCost, priority:priority, prev:node)
+      queue.push(next)
+      #cache[ny][nx][nei][straight] = cost
+      cache[state] = totalCost
+
+      #[
       for z in 0 ..< DEPTH:
         if totalCost < distances[ny, nx][z]:
           var depthCost = distances[ny, nx]
@@ -145,13 +226,32 @@ proc dijkstra(grid: Matrix[int]): seq[Position] =
             priority = manhattanDistance(pos, goal)
             next = Node(pos:pos, cost:cost, priority:priority, prev:node)
           queue.push(next)
+      ]#
 
-  echo "found it!"
+    #[
+    iterations += 1
+    if iterations mod 100_000 == 0:
+      echo queue.len
+      iterations = 0
+    #]#
+
+  if recordNode == nil:
+    return @[]
+
   #return distances[node.pos.y, node.pos.x]
+
+  #[
+  recordNode = paths[0]
+  for i in 1 ..< paths.len:
+    let n = paths[i]
+    if n.cost < recordNode.cost:
+      recordNode = n
+  ]#
+
   var path = newSeq[Position]()
   var n = recordNode
-  while n.pos != start.pos:
-    path.add(n.pos)
+  while n.state.pos != start.state.pos:
+    path.add(n.state.pos)
     n = n.prev
   return path.reversed()
 
@@ -163,12 +263,13 @@ proc countStraightSteps(currentNode: Node, step: Position): int =
     node = node.prev
 
   let
-    dx = abs(node.pos.x - step.x)
-    dy = abs(node.pos.y - step.y)
+    (nx, ny) = node.state.pos
+    dx = abs(nx - step.x)
+    dy = abs(ny - step.y)
 
   max(dx, dy)
 
-#[ tests:
+#[ tests:#
   depthIndex(-1,0, 0) == 0
   depthIndex(-1,0, 1) == 1
   depthIndex(-1,0, 2) == 2
