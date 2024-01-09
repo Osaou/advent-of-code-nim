@@ -43,10 +43,7 @@ proc solve(input: string): int =
     .matrix
 
   let path = dijkstra(grid)
-
-  #[
   renderPath(grid, path)
-  #]#
 
   path.foldl(a + grid[b.y, b.x], 0)
 
@@ -113,7 +110,8 @@ proc dijkstra(grid: Matrix[int]): seq[Position] =
   while n.state.pos != start:
     path.add(n.state.pos)
     n = n.prev
-  return path.reversed()
+
+  path.reversed()
 
 proc countStraightSteps(currentNode: Node, dir: Position): int =
   var
