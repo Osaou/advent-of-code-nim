@@ -83,8 +83,6 @@ proc parseRule(R: string): Rule =
   return Rule(kind:Defaulted, default:R)
 
 proc parseParts(P: string): seq[PartRating] =
-  #var parts = newSeq[PartRating]()
-
   collect:
     for part in P.splitLines:
       [@x,@m,@a,@s] := part[1..^2]
